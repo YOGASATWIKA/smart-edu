@@ -24,6 +24,7 @@ const MateriPokokModal: React.FC<MateriPokokModalProps> = ({
 }) => {
   // State untuk beralih antara mode pilih dan mode tambah baru
   const [isAddingNew, setIsAddingNew] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false); // State untuk loading saat submit
   
   // State untuk materi yang dipilih dari daftar yang ada
   const [selectedMateri, setSelectedMateri] = useState<MateriPokok | null>(null);
@@ -31,41 +32,32 @@ const MateriPokokModal: React.FC<MateriPokokModalProps> = ({
   // State untuk form input materi baru
   const [newMateri, setNewMateri] = useState<MateriPokok>({
     Namajabatan: '',
-    Tugasjabatan: [''], // Mulai dengan satu input kosong
-    Keterampilan: [''], // Mulai dengan satu input kosong
+    Tugasjabatan: [''], 
+    Keterampilan: [''], 
     Klasifikasi: '',
   });
 
   // --- Handlers untuk Form Input Dinamis ---
 
-  // Menangani perubahan pada input array (Tugasjabatan & Keterampilan)
-  const handleArrayInputChange = (
-    field: 'Tugasjabatan' | 'Keterampilan',
-    index: number,
-    value: string
-  ) => {
+  const handleArrayInputChange = (field: 'Tugasjabatan' | 'Keterampilan', index: number, value: string) => {
     const updatedArray = [...newMateri[field]];
     updatedArray[index] = value;
     setNewMateri({ ...newMateri, [field]: updatedArray });
   };
 
-  // Menambah input baru ke array
   const addArrayInput = (field: 'Tugasjabatan' | 'Keterampilan') => {
     setNewMateri({ ...newMateri, [field]: [...newMateri[field], ''] });
   };
 
-  // Menghapus input dari array
   const removeArrayInput = (field: 'Tugasjabatan' | 'Keterampilan', index: number) => {
-    if (newMateri[field].length > 1) { // Cegah penghapusan input terakhir
+    if (newMateri[field].length > 1) {
       const filteredArray = newMateri[field].filter((_, i) => i !== index);
       setNewMateri({ ...newMateri, [field]: filteredArray });
     }
   };
 
-
   // --- Handlers untuk Aksi Utama ---
 
-  // Konfirmasi pemilihan dari daftar yang ada
   const handleConfirmSelection = () => {
     if (selectedMateri) {
       onSelectMateri(selectedMateri);
@@ -73,16 +65,47 @@ const MateriPokokModal: React.FC<MateriPokokModalProps> = ({
     }
   };
 
-  // Menambahkan materi baru dari form
-  const handleAddNewMateri = () => {
-    // Validasi sederhana
-    if (newMateri.Namajabatan.trim() !== '') {
-      // Membersihkan array dari string kosong sebelum mengirim
-      const cleanedMateri = {
-        ...newMateri,
-        Tugasjabatan: newMateri.Tugasjabatan.filter(item => item.trim() !== ''),
-        Keterampilan: newMateri.Keterampilan.filter(item => item.trim() !== ''),
-      };
+  // --- PERBARUAN: Fungsi untuk menambahkan materi baru dengan Fetch API ---
+  const handleAddNewMateri = async () => {
+    if (newMateri.Namajabatan.trim() === '' || isSubmitting) {
+      return; // Validasi dasar dan cegah double submit
+    }
+
+    setIsSubmitting(true);
+
+    const cleanedMateri = {
+      ...newMateri,
+      Tugasjabatan: newMateri.Tugasjabatan.filter(item => item.trim() !== ''),
+      Keterampilan: newMateri.Keterampilan.filter(item => item.trim() !== ''),
+    };
+
+    try {
+      // Kirim data ke backend
+      const response = await fetch('http://localhost:3001/base-materi', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(cleanedMateri),
+      });
+
+      if (!response.ok) {
+        // Jika server mengembalikan error, tampilkan di console
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Gagal menyimpan data ke server.');
+      }
+
+      console.log('Materi berhasil disimpan ke database!');
+
+    } catch (error) {
+      // Tangani error network atau dari server
+      console.error('Terjadi kesalahan saat POST data:', error);
+      // Anda bisa menambahkan notifikasi error untuk pengguna di sini
+    } finally {
+      // Apapun hasilnya, hentikan loading dan lanjutkan alur UI
+      setIsSubmitting(false);
+
+      // Panggil prop untuk update UI di parent component secara instan
       onAddMateri(cleanedMateri);
       onClose();
     }
@@ -112,8 +135,8 @@ const MateriPokokModal: React.FC<MateriPokokModalProps> = ({
 
         {/* Modal Body */}
         <div className="max-h-[60vh] overflow-y-auto pr-2">
-          {/* Checkbox untuk beralih mode */}
-          <div className="mb-4">
+          {/* ... (sisa dari JSX body tidak berubah) ... */}
+           <div className="mb-4">
             <label className="inline-flex items-center cursor-pointer">
               <input
                 type="checkbox"
@@ -128,11 +151,10 @@ const MateriPokokModal: React.FC<MateriPokokModalProps> = ({
             </label>
           </div>
           
-          {/* Tampilan Kondisional: Form Tambah Baru atau Daftar Pilihan */}
           {isAddingNew ? (
-            // FORM UNTUK MENAMBAH MATERI BARU
             <div className="space-y-4">
-              <div>
+              {/* ... (Form input tidak berubah) ... */}
+               <div>
                 <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nama Jabatan</label>
                 <input
                   type="text"
@@ -190,7 +212,6 @@ const MateriPokokModal: React.FC<MateriPokokModalProps> = ({
 
             </div>
           ) : (
-            // DAFTAR UNTUK MEMILIH MATERI YANG SUDAH ADA
             <div className="space-y-2">
               <p className="text-sm text-gray-500 dark:text-gray-400">Pilih salah satu materi pokok yang sudah ada di bawah ini.</p>
               {materiList.map((materi, index) => (
@@ -225,10 +246,11 @@ const MateriPokokModal: React.FC<MateriPokokModalProps> = ({
           {isAddingNew ? (
             <button
               onClick={handleAddNewMateri}
-              disabled={!newMateri.Namajabatan.trim()}
+              // PERBARUAN: Tombol dinonaktifkan saat sedang submit atau form belum valid
+              disabled={!newMateri.Namajabatan.trim() || isSubmitting}
               className="rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 disabled:opacity-50 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
             >
-              Simpan Materi Baru
+              {isSubmitting ? 'Menyimpan...' : 'Simpan Materi Baru'}
             </button>
           ) : (
              <button
@@ -246,141 +268,3 @@ const MateriPokokModal: React.FC<MateriPokokModalProps> = ({
 };
 
 export default MateriPokokModal;
-
-
-
-// import React, { useState } from 'react';
-
-// // Definisikan tipe untuk props yang akan diterima komponen ini
-// interface MateriPokokModalProps {
-//   materiList: string[];
-//   onClose: () => void;
-//   onSelectMateri: (materi: string) => void;
-//   onAddMateri: (materi: string) => void;
-// }
-
-// const MateriPokokModal: React.FC<MateriPokokModalProps> = ({
-//   materiList,
-//   onClose,
-//   onSelectMateri,
-//   onAddMateri,
-// }) => {
-//   // State dengan tipe eksplisit: bisa string atau null
-//   const [selected, setSelected] = useState<string | null>(null);
-//   // State dengan tipe string
-//   const [newMateri, setNewMateri] = useState<string>('');
-
-//   const handleSelect = (materi: string) => {
-//     setSelected(materi);
-//   };
-
-//   const handleAddNewMateri = () => {
-//     if (newMateri.trim() !== '') {
-//       onAddMateri(newMateri);
-//       setNewMateri(''); // Kosongkan input setelah ditambahkan
-//     }
-//   };
-
-//   const handleConfirm = () => {
-//     if (selected) {
-//       onSelectMateri(selected);
-//       onClose();
-//     }
-//   };
-
-//   return (
-//     // Backdrop / Overlay
-//     <div
-//       onClick={onClose}
-//       className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 transition-opacity"
-//     >
-//       {/* Modal Content */}
-//       <div
-//         // Memberi tipe pada event mouse untuk type safety
-//         onClick={(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()}
-//         className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl dark:bg-gray-800"
-//       >
-//         {/* Modal Header */}
-//         <div className="mb-4 flex items-center justify-between">
-//           <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-//             Input Materi Pokok
-//           </h3>
-//           <button
-//             onClick={onClose}
-//             className="text-gray-400 hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-//           >
-//             ✕<span className="sr-only">Tutup modal</span>
-//           </button>
-//         </div>
-
-//         {/* Modal Body */}
-//         {/* <div> */}
-//           {/* Form Tambah Materi Baru */}
-//           <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Nama Jabatan</p>
-//           <div className="flex gap-2">
-//             <input
-//               type="text"
-//               value={newMateri}
-//               // Memberi tipe pada event input
-//               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewMateri(e.target.value)}
-//               placeholder="Contoh: Tes Wawasan Kebangsaan"
-//               className="mt-3 mb-3 flex-grow rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
-//             />
-//           </div>
-//           <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Pengetahuan Umum</p>
-//           <div className="flex gap-2">
-//             <input
-//               type="text"
-//               value={newMateri}
-//               // Memberi tipe pada event input
-//               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewMateri(e.target.value)}
-//               placeholder="Contoh: Tes Wawasan Kebangsaan"
-//               className="mt-3 mb-3 flex-grow rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
-//             />
-//           </div>
-//           <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Pengetahuan Khusus</p>
-//           <div className="flex gap-2">
-//             <input
-//               type="text"
-//               value={newMateri}
-//               // Memberi tipe pada event input
-//               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewMateri(e.target.value)}
-//               placeholder="Contoh: Tes Wawasan Kebangsaan"
-//               className="mt-3 mb-3 flex-grow rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
-//             />
-//           </div>
-//           <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Pengetahuan Khusus</p>
-//           <div className="flex gap-2">
-//             <input
-//               type="text"
-//               value={newMateri}
-//               // Memberi tipe pada event input
-//               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewMateri(e.target.value)}
-//               placeholder="Contoh: Tes Wawasan Kebangsaan"
-//               className="mt-3 mb-3 flex-grow rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
-//             />
-//           </div>
-//         {/* </div> */}
-
-//         {/* Modal Footer */}
-//         <div className="mt-6 flex justify-end gap-3">
-//           <button
-//             onClick={onClose}
-//             className="rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-100 focus:z-10 focus:outline-none focus:ring-4 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
-//           >
-//             Batal
-//           </button>
-//           <button
-//             onClick={handleConfirm}
-//             disabled={!selected}
-//             className="rounded-lg bg-gray-900 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 disabled:opacity-50 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
-//           >
-//             Pilih Materi
-//           </button>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default MateriPokokModal;
