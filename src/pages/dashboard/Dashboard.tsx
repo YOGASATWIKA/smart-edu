@@ -3,7 +3,7 @@ import PageMeta from "../../components/common/PageMeta";
 import { getActivities, Activity } from '../../services/activityService';
 import { useState, useEffect } from 'react';
 
-export default function AIWriterDashboard() {
+export default function SmartEdu() {
   const [activities, setActivities] = useState<Activity[]>([]);
 
   // useEffect akan berjalan sekali saat komponen dimuat
@@ -17,7 +17,7 @@ export default function AIWriterDashboard() {
   return (
     <>
       <PageMeta
-        title="SmartEdu"
+        title="Dashboard - SmartEdu"
         description="Dashboard untuk memulai proses menulis dengan bantuan AI."
       />
       <PageBreadcrumb pageTitle="Dashboard" />

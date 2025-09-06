@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 // Definisikan tipe untuk objek materi pokok
 interface MateriPokok {
+  id: string;
   Namajabatan: string;
   Tugasjabatan: string[];
   Keterampilan: string[];
@@ -31,6 +32,7 @@ const MateriPokokModal: React.FC<MateriPokokModalProps> = ({
 
   // State untuk form input materi baru
   const [newMateri, setNewMateri] = useState<MateriPokok>({
+    id: '',
     Namajabatan: '',
     Tugasjabatan: [''], 
     Keterampilan: [''], 
