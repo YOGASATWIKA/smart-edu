@@ -14,14 +14,8 @@ export interface MateriPokok {
     Klasifikasi: string;
 }
 
-const API_URL = 'http://localhost:3001/base-materi/';
-
-/**
- * Mengambil semua materi pokok dari server dan mengubahnya ke format UI.
- * @returns {Promise<MateriPokok[]>}
- */
 export const getAllMateriPokok = async (): Promise<MateriPokok[]> => {
-    const response = await fetch(API_URL);
+    const response = await fetch(import.meta.env.VITE_API_URL + "base-materi/");
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
     }
