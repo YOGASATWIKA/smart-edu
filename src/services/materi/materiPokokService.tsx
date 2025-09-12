@@ -14,8 +14,11 @@ export interface MateriPokok {
     Klasifikasi: string;
 }
 
+const BASE_API_URL = import.meta.env.VITE_PATH_API;
+const API_URL = `${BASE_API_URL}/materi-pokok/`;
+
 export const getAllMateriPokok = async (): Promise<MateriPokok[]> => {
-    const response = await fetch(import.meta.env.VITE_API_URL + "base-materi/");
+    const response = await fetch(API_URL);
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
     }
