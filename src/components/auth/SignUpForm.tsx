@@ -4,7 +4,7 @@ import { useGoogleLogin, type TokenResponse } from '@react-oauth/google';
 import axios from 'axios';
 
 const BASE_API_URL = import.meta.env.VITE_PATH_API;
-const API_URL = `${BASE_API_URL}/auth/google`;
+const API_URL = `${BASE_API_URL}/api/auth/google`;
 
 export default function SignUpForm() {
   const [isLoading, setIsLoading] = useState(false);
