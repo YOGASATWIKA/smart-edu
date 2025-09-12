@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useGoogleLogin, type TokenResponse } from '@react-oauth/google';
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3001/api/auth/google';
+const API_URL = new URL(import.meta.env.VITE_API_URL, 'api/auth/google').toString();
 
 export default function SignInForm() {
   // --- Bagian Logika (State & Fungsi) yang Sudah Lengkap ---

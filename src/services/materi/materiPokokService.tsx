@@ -15,7 +15,7 @@ export interface MateriPokok {
 }
 
 export const getAllMateriPokok = async (): Promise<MateriPokok[]> => {
-    const response = await fetch(import.meta.env.VITE_API_URL + "base-materi/");
+    const response = await fetch( new URL(import.meta.env.VITE_API_URL + "base-materi/"));
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
     }
