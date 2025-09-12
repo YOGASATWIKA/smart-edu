@@ -11,7 +11,9 @@ export default function UserDropdown() {
   const [name, setName] = useState('Loading...'); // Teks default saat data dimuat
   const [pictureUrl, setPictureUrl] = useState('../../../public/images/profile.jpg');
 
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
+
+    const BASE_API_URL = import.meta.env.VITE_PATH_API;
 
   // 3. Gunakan useEffect untuk mengambil data saat komponen dimuat
   useEffect(() => {
@@ -29,8 +31,8 @@ export default function UserDropdown() {
         };
 
         // Ambil data nama dan gambar dari backend
-        const nameResponse = await axios.get('http://localhost:3001/api/profile/name', config);
-        const pictureResponse = await axios.get('http://localhost:3001/api/profile/picture', config);
+        const nameResponse = await axios.get(`${BASE_API_URL}/api/profile/name`, config);
+        const pictureResponse = await axios.get(`${BASE_API_URL}/api/profile/picture`, config);
 
         // Perbarui state dengan data yang diterima
         if (nameResponse.data.name) {
