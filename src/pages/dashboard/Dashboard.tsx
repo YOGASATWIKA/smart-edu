@@ -1,6 +1,7 @@
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import {Link} from "react-router";
+// import {Link} from "react-router";
 
 
 export default function SmartEdu() {
@@ -20,8 +21,7 @@ export default function SmartEdu() {
           <p className="mb-10 text-base text-gray-600 dark:text-gray-400 sm:text-lg">
             Siap untuk mengubah ide brilian Anda menjadi tulisan yang terstruktur? Mulailah dari sini.
           </p>
-          <Link to="/generate" className="group mx-auto block max-w-md text-left no-underline">
-                  Go to Generate
+          <div className="group mx-auto block max-w-md text-left no-underline">
             <div
               className="cursor-pointer rounded-xl border border-gray-200 bg-gray-50 p-8 text-center transition-all duration-300 hover:border-blue-500 hover:bg-white hover:shadow-lg dark:border-gray-700 dark:bg-gray-800 dark:hover:border-blue-500 dark:hover:bg-gray-700"
             >
@@ -31,16 +31,16 @@ export default function SmartEdu() {
               <h3 className="mb-3 text-xl font-semibold text-gray-800 dark:text-white">
                 Buat Materi Baru
               </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
                 Mulailah dengan membuat kerangka tulisan yang terstruktur untuk materi terbaik anda.
               </p>
-              <div
+              <Link to= "/generate"
                 className="mt-6 w-full rounded-lg bg-blue-600 px-5 py-3 text-sm font-medium text-white transition group-hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-500 dark:group-hover:bg-blue-600"
               >
                 Mulai Membuat
-              </div>
+              </Link>
             </div>
-          </Link>
+          </div>
         </div>
       </div>
 

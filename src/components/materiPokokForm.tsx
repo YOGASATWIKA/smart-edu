@@ -337,8 +337,8 @@ const MateriPokokModal: React.FC<MateriPokokModalProps> = ({
 
         // 2. PENYESUAIAN API: Ubah data ke snake_case sebelum dikirim ke backend
         const payload = {
-            nama_jabatan: newMateri.namaJabatan.trim(),
-            tugas_jabatan: newMateri.tugasJabatan.filter(item => item.trim() !== ''),
+            namaJabatan: newMateri.namaJabatan.trim(),
+            tugasJabatan: newMateri.tugasJabatan.filter(item => item.trim() !== ''),
             keterampilan: newMateri.keterampilan.filter(item => item.trim() !== ''),
             klasifikasi: newMateri.klasifikasi.trim(),
         };
