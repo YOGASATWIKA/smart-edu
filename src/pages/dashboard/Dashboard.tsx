@@ -1,6 +1,9 @@
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 
+const API_BASE_URL = import.meta.env.VITE_PATH_API;
+const API_URL = `${API_BASE_URL}/generate/`;
+
 export default function SmartEdu() {
 
   return (
@@ -18,7 +21,7 @@ export default function SmartEdu() {
           <p className="mb-10 text-base text-gray-600 dark:text-gray-400 sm:text-lg">
             Siap untuk mengubah ide brilian Anda menjadi tulisan yang terstruktur? Mulailah dari sini.
           </p>
-          <a href="/generate" className="group mx-auto block max-w-md text-left no-underline">
+          <a href={API_URL}  className="group mx-auto block max-w-md text-left no-underline">
             <div
               className="cursor-pointer rounded-xl border border-gray-200 bg-gray-50 p-8 text-center transition-all duration-300 hover:border-blue-500 hover:bg-white hover:shadow-lg dark:border-gray-700 dark:bg-gray-800 dark:hover:border-blue-500 dark:hover:bg-gray-700"
             >
