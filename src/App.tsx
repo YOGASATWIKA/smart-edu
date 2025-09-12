@@ -4,7 +4,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 // Page Imports
 import SignIn from "./pages/authPages/SignIn";
 import SignUp from "./pages/authPages/SignUp";
-import Generate from "./pages/generate/Generate";
+// import Generate from "./pages/generate/Generate";
 import Home from "./pages/dashboard/Dashboard";
 import Materi from "./pages/materi/Materi";
 
@@ -26,7 +26,7 @@ export default function App() {
           <Route element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
               <Route index path="/" element={<Home />} />
-              <Route path="/generate" element={<Generate />} />
+              {/*<Route path="/generate" element={<Generate />} />*/}
               <Route path="/materi" element={<Materi />} />
             </Route>
           </Route>
