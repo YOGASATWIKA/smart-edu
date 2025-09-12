@@ -9,7 +9,7 @@ export default function UserDropdown() {
   
   // 2. Siapkan state untuk menyimpan nama dan URL gambar
   const [name, setName] = useState('Loading...'); // Teks default saat data dimuat
-  const [pictureUrl, setPictureUrl] = useState('../../public/images/user/agoy.jpeg'); // Gambar default
+  const [pictureUrl, setPictureUrl] = useState('../../../public/images/profile.jpg');
 
   const navigate = useNavigate(); 
 
@@ -19,7 +19,7 @@ export default function UserDropdown() {
       const token = localStorage.getItem('authToken');
       if (!token) {
         console.error("Tidak ada token, tidak bisa mengambil data user.");
-        setName('Guest'); // Set nama menjadi Guest jika tidak ada token
+        setName('Guest');
         return;
       }
 
@@ -42,7 +42,7 @@ export default function UserDropdown() {
 
       } catch (error) {
         console.error("Gagal mengambil data pengguna:", error);
-        setName('Error'); // Tampilkan error jika gagal
+        setName('Error');
       }
     };
 

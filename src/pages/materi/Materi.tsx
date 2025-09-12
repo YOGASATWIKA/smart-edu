@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router';
 import PageBreadcrumb from '../../components/common/PageBreadCrumb';
 import PageMeta from '../../components/common/PageMeta';
-import { getAllMateriPokok, MateriPokok } from '../../services/materiPokokService'; // Impor dari service
+import { getAllMateriPokok, MateriPokok } from '../../services/materi/MateriService'; // Impor dari service
 
 export default function MateriListPage() {
   const [materiList, setMateriList] = useState<MateriPokok[]>([]);

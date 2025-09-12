@@ -14,14 +14,12 @@ interface MateriPokokModalProps {
   materiList: MateriPokok[];
   onClose: () => void;
   onSelectMateri: (materi: MateriPokok) => void;
-  onAddMateri: (materi: MateriPokok) => void;
 }
 
 const MateriPokokModal: React.FC<MateriPokokModalProps> = ({
   materiList,
   onClose,
   onSelectMateri,
-  onAddMateri,
 }) => {
   // State untuk beralih antara mode pilih dan mode tambah baru
   const [isAddingNew, setIsAddingNew] = useState<boolean>(false);
@@ -83,7 +81,7 @@ const MateriPokokModal: React.FC<MateriPokokModalProps> = ({
 
     try {
       // Kirim data ke backend
-      const response = await fetch('http://localhost:3001/base-materi', {
+      const response = await fetch('http://localhost:3001/materi-pokok', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -106,9 +104,6 @@ const MateriPokokModal: React.FC<MateriPokokModalProps> = ({
     } finally {
       // Apapun hasilnya, hentikan loading dan lanjutkan alur UI
       setIsSubmitting(false);
-
-      // Panggil prop untuk update UI di parent component secara instan
-      onAddMateri(cleanedMateri);
       onClose();
     }
   };

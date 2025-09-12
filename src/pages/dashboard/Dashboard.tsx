@@ -1,18 +1,8 @@
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
-import { getActivities, Activity } from '../../services/activityService';
 import { useState, useEffect } from 'react';
 
 export default function SmartEdu() {
-  const [activities, setActivities] = useState<Activity[]>([]);
-
-  // useEffect akan berjalan sekali saat komponen dimuat
-  useEffect(() => {
-    // Ambil data aktivitas dari Local Storage menggunakan service
-    const savedActivities = getActivities();
-    setActivities(savedActivities);
-  }, []); // Array kosong berarti hanya dijalankan sekali
-
 
   return (
     <>
@@ -56,41 +46,6 @@ export default function SmartEdu() {
         Aktifitas Terakhir
       </h2>
       <div className="mt-4 rounded-2xl border border-gray-200 bg-white p-5 py-7 shadow-sm dark:border-gray-800 dark:bg-gray-900 xl:px-8 xl:py-10">
-        
-        {/* === KODE TIMELINE DIMASUKKAN DI SINI === */}
-        <ol className="relative border-l border-gray-200 dark:border-gray-700">                  
-          {activities.length > 0 ? (
-            activities.map((activity, index) => (
-              <li key={activity.id} className="mb-10 ml-6 last:mb-0">
-                <span className="absolute -left-3 flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 ring-8 ring-white dark:bg-blue-900 dark:ring-gray-900">
-                  <svg className="h-3 w-3 text-blue-800 dark:text-blue-300" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 12">
-                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 5.917 5.724 10.5 15 1.5"/>
-                  </svg>
-                </span>
-                <h3 className="mb-1 flex items-center text-lg font-semibold text-gray-900 dark:text-white">
-                  {activity.title}
-                  {index === 0 && (
-                    <span className="ml-3 mr-2 rounded bg-blue-100 px-2.5 py-0.5 text-sm font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-300">
-                      Terbaru
-                    </span>
-                  )}
-                </h3>
-                <time className="mb-2 block text-sm font-normal leading-none text-gray-400 dark:text-gray-500">
-                  {new Date(activity.timestamp).toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' })} WITA
-                </time>
-                <p 
-                  className="text-base font-normal text-gray-600 dark:text-gray-300"
-                  dangerouslySetInnerHTML={{ __html: activity.description }}
-                />
-              </li>
-            ))
-          ) : (
-            <div className="ml-4 text-sm text-gray-500">
-              Belum ada aktivitas tercatat. Mulai buat outline baru untuk melihat log di sini.
-            </div>
-          )}
-        </ol>
-
       </div>
     </>
   );
