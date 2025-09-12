@@ -292,7 +292,7 @@ export default function OutlineGenerator() {
                                 {selectedMateri ? (
                                     <span className="text-gray-900 dark:text-white">{selectedMateri.namaJabatan}</span> // Diubah ke camelCase
                                 ) : (
-                                    <span className="text-gray-400">Pilih atau Buat Materi</span>
+                                    <span className="text-gray-400">Pilih atau Buat Materi ...</span>
                                 )}
                             </div>
                         </div>
