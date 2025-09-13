@@ -85,7 +85,6 @@ const transformOutlineToHtml = (data: OutlineData | null): string => {
 
 // --- KOMPONEN UTAMA ---
 export default function OutlineGenerator() {
-    // States
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [selectedMateri, setSelectedMateri] = useState<MateriPokok | null>(null);
     const [materiList, setMateriList] = useState<MateriPokok[]>([]);
@@ -100,12 +99,6 @@ export default function OutlineGenerator() {
     const [outlineStatus, setOutlineStatus] = useState<'idle' | 'loading' | 'found' | 'not_found' | 'error'>('idle');
     const [outlineHtmlContent, setOutlineHtmlContent] = useState<string>('');
 
-    // Dihapus: State `generatedOutline`, `isSaving`, dan `setIsSaving` tidak pernah digunakan.
-    // const [generatedOutline, setGeneratedOutline] = useState<OutlineData | null>(null);
-    // const [isSaving, setIsSaving] = useState<boolean>(false);
-
-    // --- EFFECTS ---
-    // Fetch data Materi Pokok
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -222,10 +215,6 @@ export default function OutlineGenerator() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    nama_jabatan: selectedMateri.namaJabatan, // Diubah ke camelCase
-                    tugas_jabatan: selectedMateri.tugasJabatan, // Diubah ke camelCase
-                    keterampilan: selectedMateri.keterampilan,
-                    klasifikasi: selectedMateri.klasifikasi,
                     model: selectedModel,
                 }),
             });

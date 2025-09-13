@@ -1,70 +1,42 @@
 import { useState, useEffect } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
-import { useNavigate } from 'react-router'; // Menggunakan 'react-router-dom'
-import axios from 'axios'; // 1. Tambah import untuk axios
+import { useNavigate } from 'react-router';
 
 export default function UserDropdown() {
-  // State untuk dropdown (tidak berubah)
   const [isOpen, setIsOpen] = useState(false);
-  
-  // 2. Siapkan state untuk menyimpan nama dan URL gambar
-  const [name, setName] = useState('Loading...'); // Teks default saat data dimuat
+  const [name, setName] = useState('Loading...');
   const [pictureUrl, setPictureUrl] = useState('../../../public/images/profile.jpg');
-
   const navigate = useNavigate();
 
-    const BASE_API_URL = import.meta.env.VITE_PATH_API;
-
-  // 3. Gunakan useEffect untuk mengambil data saat komponen dimuat
   useEffect(() => {
     const fetchUserData = async () => {
-      const token = localStorage.getItem('authToken');
-      if (!token) {
-        console.error("Tidak ada token, tidak bisa mengambil data user.");
-        setName('Guest');
+    const user = localStorage.getItem('user');
+      if (!user) {
+        console.error("tidak bisa mengambil data user.");
         return;
       }
-
       try {
-        const config = {
-          headers: { Authorization: `Bearer ${token}` }
-        };
-
-        // Ambil data nama dan gambar dari backend
-        const nameResponse = await axios.get(`${BASE_API_URL}/api/profile/name`, config);
-        const pictureResponse = await axios.get(`${BASE_API_URL}/api/profile/picture`, config);
-
-        // Perbarui state dengan data yang diterima
-        if (nameResponse.data.name) {
-          setName(nameResponse.data.name);
-        }
-        if (pictureResponse.data.picture) {
-          setPictureUrl(pictureResponse.data.picture);
-        }
-
-      } catch (error) {
-        console.error("Gagal mengambil data pengguna:", error);
-        setName('Error');
+          const userData = JSON.parse(user);
+          setName(userData.name);
+          setPictureUrl(userData.picture);
+      }catch (error){
+          console.error(" Data Tidak Ada", error);
       }
     };
-
     fetchUserData();
-  }, []); // Array kosong memastikan ini hanya berjalan sekali
+  }, []);
 
   // Fungsi logout (tidak berubah)
   const handleLogout = () => {
     localStorage.removeItem('authToken');
     navigate('/signin');
   };
-
   function toggleDropdown() {
     setIsOpen(!isOpen);
   }
-
   function closeDropdown() {
     setIsOpen(false);
   }
-
   return (
     <div className="relative">
       <button
@@ -72,11 +44,8 @@ export default function UserDropdown() {
         className="flex items-center text-gray-700 dropdown-toggle dark:text-gray-400"
       >
         <span className="mr-3 overflow-hidden rounded-full h-11 w-11">
-          {/* 4. Gunakan state pictureUrl untuk gambar */}
           <img src={pictureUrl} alt="User" className="object-cover w-full h-full" />
         </span>
-
-        {/* 4. Gunakan state name untuk nama */}
         <span className="block mr-1 font-medium text-theme-sm">{name}</span>
         
         <svg
@@ -108,7 +77,6 @@ export default function UserDropdown() {
           onClick={handleLogout}
           className="flex items-center w-full gap-3 px-3 py-2 mt-3 font-medium text-left text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
         >
-          {/* ... SVG Anda ... */}
           Sign out
         </button>
       </Dropdown>
