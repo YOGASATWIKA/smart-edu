@@ -152,15 +152,14 @@ export default function ModulListPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 p-4 pb-48 dark:bg-gray-900 md:p-6 lg:p-8">
-            <div className="w-full">
-                <PageMeta
-                    title="Buat Materi"
-                    description="Lihat semua materi pokok yang telah dibuat."
-                />
+        <>
+        <PageMeta
+            title="Buat Materi"
+            description="Lihat semua materi pokok yang telah dibuat."
+        />
+        <PageBreadcrumb pageTitle="Modul" />
 
-                <PageBreadcrumb pageTitle="Modul" />
-            </div>
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
             <main>
                 {modulList.length > 0 ? (
                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -233,5 +232,6 @@ export default function ModulListPage() {
                 }}                />
             )}
         </div>
+        </>
     );
 }

@@ -27,7 +27,7 @@ export default function App() {
             <Route element={<AppLayout />}>
               <Route index path="/" element={<Home />} />
                 <Route path="/modul" element={<Modul />} />
-                <Route path="/s" element={<Materi />} />
+                <Route path="/document" element={<Materi />} />
               <Route path="/ebook" element={<Ebook />} />
             </Route>
           </Route>
