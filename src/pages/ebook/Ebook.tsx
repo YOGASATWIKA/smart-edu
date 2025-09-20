@@ -46,7 +46,7 @@ export default function EbookViewerPage() {
     }
 
     return (
-        <div className="bg-gray-50 min-h-screen p-4 sm:p-8">
+        <div className="bg-gray-50 min-h-screen p-4 sm:p-8 dark:bg-gray-900">
             <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-8">
                 {/* Judul Utama Ebook */}
                 <header className="text-center border-b pb-6 mb-8">
