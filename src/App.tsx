@@ -5,7 +5,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import SignIn from "./pages/authPages/SignIn";
 import SignUp from "./pages/authPages/SignUp";
 import Home from "./pages/dashboard/Dashboard";
-import Materi from "./pages/materi/Materi";
+import EbookList from "./pages/ebook/EbookList"
 import Ebook from "./pages/ebook/Ebook";
 import Modul from "./pages/modul/Modul";
 // Layout & Component Imports
@@ -27,7 +27,7 @@ export default function App() {
             <Route element={<AppLayout />}>
               <Route index path="/" element={<Home />} />
                 <Route path="/modul" element={<Modul />} />
-                <Route path="/document" element={<Materi />} />
+                <Route path="/document" element={<EbookList />} />
               <Route path="/ebook" element={<Ebook />} />
             </Route>
           </Route>

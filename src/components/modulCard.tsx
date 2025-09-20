@@ -80,13 +80,14 @@ export default function ModulCard({ modul, isSelected, isDisabled, onSelect, onV
             </div>
 
             <div className="mt-6 mb-4 flex items-center gap-3">
-                <button
-                    onClick={handleDetailClick}
-                    className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-800 transition hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-                >
-                    Lihat Detail
-                </button>
-
+                {['DRAFT', 'OUTLINE'].includes(modul.state) && (
+                    <button
+                        onClick={handleDetailClick}
+                        className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-800 transition hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+                    >
+                        Lihat Detail
+                    </button>
+                )}
                 {modul.state === 'EBOOK' && (
                     <button
                         onClick={handleEbookClick}

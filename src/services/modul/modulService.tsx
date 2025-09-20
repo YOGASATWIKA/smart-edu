@@ -54,6 +54,23 @@ export const getAllModul = async (): Promise<Modul[]> => {
     }
 };
 
+export const getAllEbook = async (): Promise<Modul[]> => {
+    const response = await fetch(`${API_BASE_URL}/modul/ebook`);
+
+    if (!response.ok) {
+        throw new Error(`Gagal mengambil data modul: Status ${response.status}`);
+    }
+
+    const result = await response.json();
+
+    if (result && Array.isArray(result.data)) {
+        return result.data;
+    } else {
+        console.error("Format data dari server tidak sesuai:", result);
+        return [];
+    }
+};
+
 export const createBaseMateri = async (materiData: NewBaseMateriRequest): Promise<any> => {
     const response = await fetch(`${API_BASE_URL}/modul/base-materi`, {
         method: 'POST',
