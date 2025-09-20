@@ -2,11 +2,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
 
 import {
-  ChevronDownIcon,
-  DocsIcon,
-  GridIcon,
-  HorizontaLDots,
-  PencilIcon,
+    ChevronDownIcon,
+    DocsIcon,
+    GridIcon,
+    HorizontaLDots,
+    PencilIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 
@@ -25,13 +25,13 @@ const navItems: NavItem[] = [
   },
   {
     icon: <PencilIcon />,
-    name: "Buat Materi",
-    path: "/generate",
+    name: "Buat Ebook",
+    path: "/modul",
   },
   {
     icon: <DocsIcon />,
-    name: "Materi",
-    path: "/materi",
+    name: "Ebook",
+    path: "/document",
   },
 ];
 const AppSidebar: React.FC = () => {

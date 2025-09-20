@@ -8,7 +8,6 @@ import { googleLoginService, storeAuthData } from '../services/auth/authService'
 
 export const useAuth = () => {
     const [isLoading, setIsLoading] = useState(false);
-    // ✅ 2. Beri tahu TypeScript bahwa state 'error' bisa berupa string ATAU null
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
 

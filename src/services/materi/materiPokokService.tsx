@@ -4,17 +4,22 @@ interface MateriPokokAPI {
     tugas_jabatan: string[];
     keterampilan: string[];
     klasifikasi: string;
+    "created_at": string;
+    "updated_at": string;
 }
 
 export interface MateriPokok {
     id: string;
-    Namajabatan: string;
-    Tugasjabatan: string[];
-    Keterampilan: string[];
-    Klasifikasi: string;
+    namaJabatan: string;
+    tugasJabatan: string[];
+    keterampilan: string[];
+    klasifikasi: string;
+    createdAt: string;
+    updated_at: string;
+
 }
 
-const BASE_API_URL = import.meta.env.VITE_PATH_API;
+const BASE_API_URL = import.meta.env.VITE_PATH_API || 'http://localhost:3000/api';
 const API_URL = `${BASE_API_URL}/materi-pokok/`;
 
 export const getAllMateriPokok = async (): Promise<MateriPokok[]> => {
@@ -26,15 +31,15 @@ export const getAllMateriPokok = async (): Promise<MateriPokok[]> => {
     const result = await response.json();
 
     if (result && Array.isArray(result.data)) {
-        // Transformasi data dari snake_case (API) ke camelCase (UI)
-        const transformedData: MateriPokok[] = result.data.map((item: MateriPokokAPI) => ({
-            id: item.id, // Pastikan ID ikut di-transform
-            Namajabatan: item.nama_jabatan,
-            Tugasjabatan: item.tugas_jabatan,
-            Keterampilan: item.keterampilan,
-            Klasifikasi: item.klasifikasi,
+        return result.data.map((item: MateriPokokAPI) => ({
+            id: item.id,
+            namaJabatan: item.nama_jabatan,
+            tugasJabatan: item.tugas_jabatan,
+            keterampilan: item.keterampilan,
+            klasifikasi: item.klasifikasi,
+            createdAt: item.created_at,
+            updated_at: item.updated_at,
         }));
-        return transformedData;
     } else {
         throw new Error('Format data dari server tidak sesuai');
     }
