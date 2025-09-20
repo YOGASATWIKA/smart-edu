@@ -1,7 +1,3 @@
-import {MateriPokok, Modul, Outline} from "../modul/modulService.tsx";
-
-// src/types/ebook.ts
-
 export interface Detail {
     content: string;
     expanded: string;

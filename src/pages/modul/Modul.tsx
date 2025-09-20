@@ -228,8 +228,9 @@ export default function ModulListPage() {
                     materi={detailModul}
                     isLoading={isDetailLoading}
                     error={detailError}
-                    onClose={handleCloseDetailModal}
-                />
+                    onClose={handleCloseDetailModal} onUpdateSuccess={function (): void {
+                    throw new Error("Function not implemented.");
+                }}                />
             )}
         </div>
     );
