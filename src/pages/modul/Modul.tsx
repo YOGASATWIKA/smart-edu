@@ -180,42 +180,71 @@ export default function ModulListPage() {
                 )}
 
             </main>
-            <button onClick={() => setIsModalOpen(true)} className="w-full mt-5 rounded-lg bg-gray-900 px-5 py-3 font-medium text-white shadow-sm transition hover:bg-gray-700 dark:bg-blue-600 dark:hover:bg-blue-700">
-                + Tambah Materi
-            </button>
 
-            {selectedModulIds.length > 0 && (
                 <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-gray-200 bg-white/80 p-4 shadow-lg backdrop-blur-sm dark:border-gray-700 dark:bg-gray-900/80">
-                    <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-4 md:justify-between">
-                        <div className="text-center md:text-left">
-                            <p className="text-lg font-medium text-gray-800 dark:text-gray-200">
-                                <span className="font-bold text-blue-600 dark:text-blue-400">{selectedModulIds.length}</span> modul terpilih
-                            </p>
-                            <p className="text-xs text-gray-500">
-                                ({selectedDraftIds.length} Draft, {selectedCompletedIds.length} Completed)
-                            </p>
+                    <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-6 gap-y-4">
+
+                        {/* Bagian Kiri: Informasi Jumlah yang Dipilih */}
+                        <div className="flex items-center gap-3">
+                            <div className="flex -space-x-2">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white ring-2 ring-white dark:ring-gray-800">
+                        {selectedModulIds.length}
+                    </span>
+                            </div>
+                            <div>
+                                <p className="font-semibold text-gray-800 dark:text-gray-200">
+                                    Modul Terpilih
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                    {selectedDraftIds.length} Draft, {selectedCompletedIds.length} Completed
+                                </p>
+                            </div>
                         </div>
-                        <div className="flex gap-4">
-                            <div className="flex w-full flex-col gap-4 sm:w-auto sm:flex-row">
+
+                        {/* Bagian Kanan: Semua Tombol Aksi */}
+                        <div className="flex flex-wrap items-center gap-4">
+                            <button
+                                onClick={() => setIsModalOpen(true)}
+                                className="inline-flex items-center justify-center gap-2 rounded-lg bg-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-800 shadow-sm transition hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                <span>Tambah Materi</span>
+                            </button>
+
+                            {/* Grup Aksi Generate (Terkait dengan item yang dipilih) */}
+                            <div className="flex items-center gap-5 p-2 rounded-lg bg-gray-100 dark:bg-gray-800">
                                 <select
                                     value={selectedModel}
                                     onChange={(e) => setSelectedModel(e.target.value)}
-                                    className="w-full rounded-lg border-gray-300 shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:w-48"
+                                    className="min-w-36 rounded-md border-gray-300 bg-white py-2 pr-8 text-sm shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                                 >
-                                    {modelList.length === 0 && <option>Memuat model...</option>}
+                                    {modelList.length === 0 && <option>Memuat...</option>}
                                     {modelList.map(model => <option key={model} value={model}>{model}</option>)}
                                 </select>
+
+                                <button
+                                    onClick={handleGenerateOutline}
+                                    disabled={selectedDraftIds.length === 0 || isGeneratingOutline}
+                                    className="inline-flex items-center justify-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400"
+                                >
+                                    <span>Generate Outline</span>
+                                    <span className="rounded-full bg-blue-200 px-2 py-0.5 text-xs font-bold text-blue-800">{selectedDraftIds.length}</span>
+                                </button>
+
+                                <button
+                                    onClick={handleGenerateEbook}
+                                    disabled={selectedCompletedIds.length === 0 || isGeneratingEbook}
+                                    className="inline-flex items-center justify-center gap-2 rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-gray-400"
+                                >
+                                    <span>Generate Ebook</span>
+                                    <span className="rounded-full bg-green-200 px-2 py-0.5 text-xs font-bold text-green-800">{selectedCompletedIds.length}</span>
+                                </button>
                             </div>
-                            <button onClick={handleGenerateOutline} disabled={selectedDraftIds.length === 0|| isGeneratingOutline} className="rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:opacity-70">
-                                Generate Outline ({selectedDraftIds.length})
-                            </button>
-                            <button onClick={handleGenerateEbook} disabled={selectedCompletedIds.length === 0||isGeneratingEbook} className="rounded-lg bg-gray-900 px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-gray-700 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:opacity-70 dark:bg-green-600 dark:hover:bg-green-700">
-                                Generate Ebook ({selectedCompletedIds.length})
-                            </button>
                         </div>
+
                     </div>
                 </div>
-            )}
+
 
             <AddMateriModal
                 isOpen={isModalOpen}

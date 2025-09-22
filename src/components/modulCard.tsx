@@ -39,6 +39,13 @@ export default function ModulCard({ modul, isSelected, isDisabled, onSelect, onV
         navigate('/ebook', { state: { moduleId: modul._id } });
     };
 
+    const stateColors: { [key: string]: string } = {
+        DRAFT: 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300',
+        OUTLINE: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-300',
+        EBOOK: 'bg-green-100 text-green-800 dark:bg-green-900/60 dark:text-green-300',
+        default: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+    };
+
     return (
         <div
             onClick={handleCardClick}
@@ -52,17 +59,6 @@ export default function ModulCard({ modul, isSelected, isDisabled, onSelect, onV
                 : 'border-gray-200 dark:border-gray-700'}
             `}
         >
-            {/* Checkbox hanya ditampilkan untuk modul yang bisa dipilih */}
-            {!isDisabled && (
-                <div className="absolute top-4 right-4">
-                    <input
-                        type="checkbox"
-                        checked={isSelected}
-                        readOnly
-                        className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 pointer-events-none"
-                    />
-                </div>
-            )}
 
             <div className="flex-grow">
                 <h3 className="pr-8 text-lg font-bold text-gray-900 dark:text-white mb-2">
@@ -70,12 +66,10 @@ export default function ModulCard({ modul, isSelected, isDisabled, onSelect, onV
                 </h3>
                 <span
                     className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${
-                        modul.state === 'COMPLETED'
-                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
-                            : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
+                        stateColors[modul.state] || stateColors.default
                     }`}
                 >
-                    {modul.state}
+                  {modul.state}
                 </span>
             </div>
 
@@ -91,7 +85,7 @@ export default function ModulCard({ modul, isSelected, isDisabled, onSelect, onV
                 {modul.state === 'EBOOK' && (
                     <button
                         onClick={handleEbookClick}
-                        className="rounded-lg bg-green-100 px-4 py-2 text-sm font-medium text-green-800 transition hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-green-300 dark:bg-green-900/50 dark:text-green-300 dark:hover:bg-green-900"
+                        className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-800 transition hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
                     >
                         Lihat Ebook
                     </button>

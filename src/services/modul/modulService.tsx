@@ -18,6 +18,15 @@ export interface Outline {
     list_materi: MateriUtama[];
 }
 
+export interface ModulActivity {
+    _id: string;
+    nama_jabatan: string;
+    status: string;
+    state: string;
+    created_at: string;
+    updated_at: string;
+}
+
 export interface Modul {
     _id: string;
     materi_pokok: MateriPokok;
@@ -123,3 +132,19 @@ export const getModulById = async (id: string): Promise<Modul> => {
     }
 };
 
+export const getActivity = async (): Promise<ModulActivity[]> => {
+    const response = await fetch(`${API_BASE_URL}/modul/activity`);
+
+    if (!response.ok) {
+        throw new Error(`Gagal mengambil data modul: Status ${response.status}`);
+    }
+
+    const result = await response.json();
+
+    if (result && Array.isArray(result.data)) {
+        return result.data;
+    } else {
+        console.error("Format data dari server tidak sesuai:", result);
+        return [];
+    }
+};
