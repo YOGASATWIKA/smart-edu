@@ -46,8 +46,10 @@ export interface NewBaseMateriRequest {
 
 const API_BASE_URL = import.meta.env.VITE_PATH_API;
 
-export const getAllModul = async (): Promise<Modul[]> => {
-    const response = await fetch(`${API_BASE_URL}/modul/`);
+export const getModulByState = async (state: string): Promise<Modul[]> => {
+    let url = `${API_BASE_URL}/modul`;
+    url += `?state=${state}`;
+    const response = await fetch(url);
 
     if (!response.ok) {
         throw new Error(`Gagal mengambil data modul: Status ${response.status}`);

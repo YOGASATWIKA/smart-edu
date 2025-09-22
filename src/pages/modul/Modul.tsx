@@ -6,7 +6,7 @@ import {generateOutlines} from '../../services/modul/modulService';
 import {generateEbooks} from '../../services/ebook/ebookService';
 import PageBreadcrumb from '../../components/common/PageBreadCrumb';
 import PageMeta from '../../components/common/PageMeta';
-import { getAllModul, getModulById, Modul } from '../../services/modul/modulService';
+import {getModulByState, getModulById, Modul } from '../../services/modul/modulService';
 import ModulDetail from "../../components/modulDetail.tsx";
 
 
@@ -24,43 +24,48 @@ export default function ModulListPage() {
     const [detailModul, setDetailModul] = useState<Modul | null>(null);
     const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
     const [detailError, setDetailError] = useState<string | null>(null);
-    const fetchModulData = useCallback(async () => {
-        try {
-            const data = await getAllModul();
-            setModulList(data);
-        } catch (err: any) {
-            setError(err.message || 'Gagal memuat data modul');
-        }
-    }, []);
 
-    // Efek untuk memuat semua data awal saat komponen pertama kali dirender
+    const [filterStatus, setFilterStatus] = useState('ALL');
     useEffect(() => {
-        const loadInitialData = async () => {
+        const fetchData = async () => {
             setIsLoading(true);
             setError(null);
             try {
-                // Ambil data modul dan model secara bersamaan untuk efisiensi
-                const [modulData, modelsData] = await Promise.all([
-                    getAllModul(),
-                    fetchModels()
-                ]);
-
-                setModulList(modulData);
-                setModelList(modelsData);
-
-                // Set model pertama sebagai default jika tersedia
-                if (modelsData.length > 0) {
-                    setSelectedModel(modelsData[0]);
-                }
+                const data = await getModulByState(filterStatus);
+                setModulList(data);
             } catch (err: any) {
-                setError(err.message || 'Terjadi kesalahan tidak diketahui');
+                setError(err.message);
             } finally {
                 setIsLoading(false);
             }
         };
+        fetchData();
+    }, [filterStatus]);
 
-        loadInitialData();
-    }, []); // Dependency array kosong agar hanya berjalan sekali
+        useEffect(() => {
+            const loadModels = async () => {
+                try {
+                    const modelsData = await fetchModels();
+                    setModelList(modelsData);
+                    if (modelsData.length > 0) {
+                        setSelectedModel(modelsData[0]);
+                    }
+                } catch (err: any) {
+                    console.error("Gagal memuat model:", err);
+                    // Tidak set error utama agar halaman tetap bisa jalan
+                }
+            };
+            loadModels();
+        }, []);
+
+        const fetchModulData = useCallback(async () => {
+            try {
+                const data = await getModulByState(filterStatus);
+                setModulList(data);
+            } catch (err: any) {
+                setError(err.message || 'Gagal memuat ulang data modul');
+            }
+        }, [filterStatus]);
 
     const { selectedDraftIds, selectedCompletedIds } = useMemo(() => {
         const drafts: string[] = [];
@@ -160,6 +165,45 @@ export default function ModulListPage() {
         <PageBreadcrumb pageTitle="Modul" />
 
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+            <div className="flex flex-col items-center justify-between rounded-lg shadow-sm sm:flex-row pb-4 ">
+                <div>
+                    <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="inline-flex items-center justify-center gap-2 rounded-lg bg-sky-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-sky-700 focus:outline-none focus:ring-4 focus:ring-sky-300 dark:focus:ring-sky-800"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        <span>Tambah Materi</span>
+                    </button>
+                </div>
+
+
+                <div className="flex items-center gap-4">
+                    <select
+                        value={selectedModel}
+                        onChange={(e) => setSelectedModel(e.target.value)}
+                        className="min-w-36 rounded-md border-gray-300 bg-white py-2 pr-8 text-sm shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    >
+                        {modelList.length === 0 && <option>Memuat...</option>}
+                        {modelList.map(model => <option key={model} value={model}>{model}</option>)}
+                    </select>
+                    <div className="relative ">
+                        <select
+                            id="status-filter"
+                            value={filterStatus}
+                            onChange={(e) => setFilterStatus(e.target.value)}
+                            className="min-w-36 rounded-md border-gray-300 bg-white py-2 pr-8 text-sm shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                        >
+                            <option value="ALL">All</option>
+                            <option value="DRAFT">Draft</option>
+                            <option value="OUTLINE">Outline</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
             <main>
                 {modulList.length > 0 ? (
                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -187,9 +231,9 @@ export default function ModulListPage() {
                         {/* Bagian Kiri: Informasi Jumlah yang Dipilih */}
                         <div className="flex items-center gap-3">
                             <div className="flex -space-x-2">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white ring-2 ring-white dark:ring-gray-800">
-                        {selectedModulIds.length}
-                    </span>
+                                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white ring-2 ring-white dark:ring-gray-800">
+                                    {selectedModulIds.length}
+                                </span>
                             </div>
                             <div>
                                 <p className="font-semibold text-gray-800 dark:text-gray-200">
@@ -203,25 +247,8 @@ export default function ModulListPage() {
 
                         {/* Bagian Kanan: Semua Tombol Aksi */}
                         <div className="flex flex-wrap items-center gap-4">
-                            <button
-                                onClick={() => setIsModalOpen(true)}
-                                className="inline-flex items-center justify-center gap-2 rounded-lg bg-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-800 shadow-sm transition hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                                <span>Tambah Materi</span>
-                            </button>
-
                             {/* Grup Aksi Generate (Terkait dengan item yang dipilih) */}
                             <div className="flex items-center gap-5 p-2 rounded-lg bg-gray-100 dark:bg-gray-800">
-                                <select
-                                    value={selectedModel}
-                                    onChange={(e) => setSelectedModel(e.target.value)}
-                                    className="min-w-36 rounded-md border-gray-300 bg-white py-2 pr-8 text-sm shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                                >
-                                    {modelList.length === 0 && <option>Memuat...</option>}
-                                    {modelList.map(model => <option key={model} value={model}>{model}</option>)}
-                                </select>
-
                                 <button
                                     onClick={handleGenerateOutline}
                                     disabled={selectedDraftIds.length === 0 || isGeneratingOutline}
