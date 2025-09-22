@@ -96,9 +96,8 @@ export default function EbookList() {
                                     modul={modul}
                                     isSelected={selectedModulIds.includes(modul._id)}
                                     onViewDetail={() => handleViewDetail(modul._id)}
-                                    isDisabled={false} onSelect={function (id: string): void {
-                                    throw new Error("Function not implemented.");
-                                }}                            />
+                                    isDisabled={false}
+                                />
                             ))}
                         </div>
                     ) : (

@@ -5,9 +5,9 @@ import { useNavigate } from 'react-router-dom';
 
 interface ModulCardProps {
     modul: Modul;
-    isSelected: boolean;
+    isSelected?: boolean;
     isDisabled: boolean;
-    onSelect: (id: string) => void;
+    onSelect?: (id: string) => void;
     onViewDetail: (modul: Modul) => void;
 }
 
@@ -27,7 +27,9 @@ export default function ModulCard({ modul, isSelected, isDisabled, onSelect, onV
     const navigate = useNavigate();
     const handleCardClick = () => {
         if (!isDisabled) {
-            onSelect(modul._id);
+            if (onSelect) {
+                onSelect(modul._id);
+            }
         }
     };
 
