@@ -54,12 +54,6 @@ export const googleLoginService = async (googleAccessToken: string): Promise<Aut
     }
 };
 
-// --- FUNGSI UTILITAS UNTUK MENYIMPAN DATA AUTH ---
-/**
- * Menyimpan token dan data pengguna ke localStorage.
- * @param {string} token - Token otentikasi.
- * @param {object} user - Data pengguna.
- */
 export const storeAuthData = (token: string, user: object) => {
     localStorage.setItem('authToken', token);
     localStorage.setItem('user', JSON.stringify(user));

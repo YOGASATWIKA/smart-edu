@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useGoogleLogin, type TokenResponse } from '@react-oauth/google';
 import { registerService, googleLoginService, storeAuthData } from '../../services/auth/authService';
+import PasswordInput from "./password_input.tsx";
 
 export default function SignUpForm() {
     const [fullName, setFullName] = useState('');
@@ -63,9 +64,11 @@ export default function SignUpForm() {
                         <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Enter your email" className="block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500" required />
                     </div>
                     <div className="mb-6">
-                        <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300" htmlFor="password">Password</label>
-                        <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="********" className="block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500" required />
-                    </div>
+                        <PasswordInput
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                        />
+                     </div>
                     <button type="submit" disabled={isLoading} className="w-full rounded-lg bg-sky-600 px-7 py-3 text-sm font-semibold text-white transition-colors hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60">
                         {isLoading ? 'Registering...' : 'Register'}
                     </button>

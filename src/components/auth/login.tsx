@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { loginService, storeAuthData } from '../../services/auth/authService';
+import PasswordInput from './password_input.tsx';
 
 export default function SignInForm() {
     const [email, setEmail] = useState('');
@@ -49,13 +50,9 @@ export default function SignInForm() {
                         />
                     </div>
                     <div className="mb-6">
-                        <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300" htmlFor="password">Password</label>
-                        <input
-                            id="password" type="password" value={password}
+                        <PasswordInput
+                            value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            placeholder="********"
-                            className="block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
-                            required
                         />
                     </div>
                     <button
