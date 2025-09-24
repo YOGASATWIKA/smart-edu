@@ -1,52 +1,65 @@
-// src/services/auth/authService.tsx
-
 import axios from 'axios';
+import type { LoginCredentials, RegisterData, AuthResponse, GoogleLoginPayload } from '../../types/auth';
 
-const GOOGLE_USERINFO_URL = 'https://www.googleapis.com/oauth2/v3/userinfo';
-const BACKEND_API_URL = `${import.meta.env.VITE_PATH_API}/api/auth/google`;
+const BASE_API_URL = import.meta.env.VITE_PATH_API;
 
-/**
- * Fungsi untuk menangani proses login Google.
- * 1. Mengambil info pengguna dari Google.
- * 2. Mengirim info tersebut ke backend untuk autentikasi.
- * @param {string} googleAccessToken - Token akses yang didapat dari Google Login.
- * @returns {Promise<{token: string, user: object}>} - Token JWT dan data pengguna dari backend.
- */
-export const googleLoginService = async (googleAccessToken: string) => {
+export const loginService = async (credentials: LoginCredentials): Promise<AuthResponse> => {
     try {
-        // Langkah 1: Dapatkan informasi pengguna dari Google
-        const userInfoResponse = await axios.get(GOOGLE_USERINFO_URL, {
+        const response = await axios.post(`${BASE_API_URL}/login`, credentials);
+        if (!response.data || !response.data.token || !response.data.user) {
+            throw new Error('Invalid response from server');
+        }
+        return response.data;
+    } catch (error: any) {
+        console.error("Login service error:", error.response?.data || error.message);
+        throw new Error(error.response?.data?.message || 'Failed to login.');
+    }
+};
+
+
+export const registerService = async (data: RegisterData): Promise<AuthResponse> => {
+    try {
+        const response = await axios.post(`${BASE_API_URL}/register`, data);
+        if (!response.data || !response.data.token || !response.data.user) {
+            throw new Error('Invalid response from server');
+        }
+        return response.data;
+    } catch (error: any) {
+        console.error("Register service error:", error.response?.data || error.message);
+        throw new Error(error.response?.data?.message || 'Failed to register.');
+    }
+};
+
+export const googleLoginService = async (googleAccessToken: string): Promise<AuthResponse> => {
+    try {
+        const userInfoResponse = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
             headers: { Authorization: `Bearer ${googleAccessToken}` },
         });
 
         const { sub, name, email, picture } = userInfoResponse.data;
+        const payload: GoogleLoginPayload = { name, email, googleId: sub, picture };
 
-        // Langkah 2: Kirim data ke backend Anda untuk mendapatkan token JWT
-        const backendResponse = await axios.post(BACKEND_API_URL, {
-            name,
-            email,
-            googleId: sub,
-            picture,
-        });
+        const backendResponse = await axios.post(`${BASE_API_URL}/api/auth/google`, payload);
 
-        // Pastikan backend mengembalikan token
-        if (!backendResponse.data ||!backendResponse.data.token) {
+        if (!backendResponse.data || !backendResponse.data.token) {
             throw new Error('No token received from server.');
         }
 
-        // Kembalikan data yang dibutuhkan oleh aplikasi
-        return {
-            token: backendResponse.data.token,
-            user: { name, email, picture },
-        };
+        // Backend seharusnya juga mengembalikan data user, kita gunakan itu.
+        return backendResponse.data;
+
     } catch (error: any) {
-        // Lemparkan error agar bisa ditangkap oleh pemanggil (custom hook)
-        // ✅ PERBAIKAN DI SINI: Mengganti '| |' menjadi '||'
         console.error("Authentication service error:", error.response?.data || error.message);
         throw new Error('Failed to authenticate with the server.');
     }
 };
 
+// --- FUNGSI UTILITAS UNTUK MENYIMPAN DATA AUTH ---
+/**
+ * Menyimpan token dan data pengguna ke localStorage.
+ * @param {string} token - Token otentikasi.
+ * @param {object} user - Data pengguna.
+ */
 export const storeAuthData = (token: string, user: object) => {
     localStorage.setItem('authToken', token);
     localStorage.setItem('user', JSON.stringify(user));
