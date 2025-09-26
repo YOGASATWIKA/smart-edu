@@ -25,8 +25,8 @@ const navItems: NavItem[] = [
   },
   {
     icon: <PencilIcon />,
-    name: "Buat Ebook",
-    path: "/modul",
+    name: "Write",
+    path: "/write",
   },
   {
     icon: <DocsIcon />,

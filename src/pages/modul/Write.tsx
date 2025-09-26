@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { fetchModels } from '../../services/model/modelService';
+import { fetchModels } from '../../services/model/modelService.tsx';
 import ModulCard from '../../components/modulCard.tsx';
 import AddMateriModal from '../../components/addMateriModel.tsx';
-import {generateOutlines} from '../../services/modul/modulService';
-import {generateEbooks} from '../../services/ebook/ebookService';
-import PageBreadcrumb from '../../components/common/PageBreadCrumb';
-import PageMeta from '../../components/common/PageMeta';
-import {getModulByState, getModulById, Modul } from '../../services/modul/modulService';
+import {generateOutlines} from '../../services/modul/modulService.tsx';
+import {generateEbooks} from '../../services/ebook/ebookService.tsx';
+import PageBreadcrumb from '../../components/common/PageBreadCrumb.tsx';
+import PageMeta from '../../components/common/PageMeta.tsx';
+import {getModulByState, getModulById, Modul } from '../../services/modul/modulService.tsx';
 import ModulDetail from "../../components/modulDetail.tsx";
 
 

@@ -44,7 +44,7 @@ export default function SmartEdu() {
           <p className="mb-10 text-base text-gray-600 dark:text-gray-400 sm:text-lg">
             Siap untuk mengubah ide brilian Anda menjadi tulisan yang terstruktur? Mulailah dari sini.
           </p>
-            <Link to= "/modul"
+            <Link to= "/write"
                   className="mt-6 w-3 rounded-lg bg-blue-600 px-5 py-3 text-sm font-medium text-white transition group-hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-500 dark:group-hover:bg-blue-600"
             >
                 Buat Modul
