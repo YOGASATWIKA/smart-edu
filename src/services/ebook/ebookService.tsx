@@ -1,3 +1,5 @@
+import Swal from "sweetalert2";
+
 export interface Detail {
     content: string;
     expanded: string;
@@ -59,7 +61,7 @@ export const generateEbooks = async (modulIds: string[], model: string): Promise
     return await response.json();
 };
 
-export const getEbookById = async (id: string): Promise<Ebook> => {
+export const getEbookById = async (id: string): Promise<any> => {
     const response = await fetch(`${API_BASE_URL}/ebook/${id}`);
     if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: `Gagal mengambil ebook Status: ${response.status}` }));
@@ -70,7 +72,12 @@ export const getEbookById = async (id: string): Promise<Ebook> => {
         return result.data;
     } else {
         console.error("Format data dari server tidak sesuai:", result);
-        throw new Error("Format data dari server tidak sesuai.");
+        const errorMessage = 'Format data dari server tidak sesuai.';
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops... Terjadi Kesalahan',
+            text: errorMessage,
+        });
     }
 };
 

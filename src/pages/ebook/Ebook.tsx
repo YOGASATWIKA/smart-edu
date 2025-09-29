@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Ebook, getEbookById } from '../../services/ebook/ebookService';
+import {LoadingSpinner} from '../../components/loadingSpinner.tsx';
+import Swal from "sweetalert2";
 
 export default function EbookViewerPage() {
     const location = useLocation();
@@ -10,31 +12,76 @@ export default function EbookViewerPage() {
     const [ebook, setEbook] = useState<Ebook | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const isGenerating = location.state?.isGenerating;
 
     useEffect(() => {
         if (!id) {
             setIsLoading(false);
-            setError("ID Modul tidak ditemukan. Silakan kembali dan pilih modul.");
+            const errorMessage = 'ID Modul tidak ditemukan. Silakan kembali dan pilih modul.';
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops... Terjadi Kesalahan',
+                text: errorMessage,
+            });
             return;
         }
+
+        let intervalId: NodeJS.Timeout;
         const fetchEbook = async () => {
-            setIsLoading(true);
-            setError(null);
             try {
                 const data = await getEbookById(id);
                 setEbook(data);
-            } catch (err: any) {
-                setError(err.message);
-            } finally {
                 setIsLoading(false);
+                if (intervalId) clearInterval(intervalId);
+                return true;
+            } catch (err: any) {
+                if (!err.message.toLowerCase().includes("tidak ditemukan")) {
+                    setError(err.message);
+                    setIsLoading(false);
+                    if (intervalId) clearInterval(intervalId);
+                }
+                return false;
             }
         };
 
-        fetchEbook();
-    }, [id]);
+        if (isGenerating) {
+            setIsLoading(true);
+            setError(null);
+
+            let attempts = 0;
+            const maxAttempts = 144;
+
+            intervalId = setInterval(async () => {
+                attempts++;
+                console.log(`Mencoba mengambil Ebook, percobaan ke-${attempts}...`);
+                const found = await fetchEbook();
+                if (found || attempts >= maxAttempts) {
+                    clearInterval(intervalId);
+                    if (!found) {
+                        const errorMessage = 'Proses generate memakan waktu terlalu lama atau gagal. Silakan coba lagi nanti.';
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops... Terjadi Kesalahan',
+                            text: errorMessage,
+                        });
+                        setIsLoading(false);
+                    }
+                }
+            }, 10000);
+
+        } else {
+            fetchEbook();
+        }
+        return () => {
+            if (intervalId) {
+                clearInterval(intervalId);
+            }
+        };
+
+    }, [id, isGenerating]);
 
     if (isLoading) {
-        return <div className="p-8 text-center">Memuat Ebook...</div>;
+        return <LoadingSpinner isGenerating={isGenerating} />;
     }
 
     if (error) {

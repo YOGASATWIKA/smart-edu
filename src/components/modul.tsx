@@ -2,11 +2,12 @@
 
 import { useState, FormEvent } from 'react';
 import { NewBaseMateriRequest, createBaseMateri } from '../services/modul/modulService.tsx';
+import Swal from "sweetalert2";
 
 interface AddMateriModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSuccess: () => void; // Fungsi untuk refresh data setelah sukses
+    onSuccess: () => void;
 }
 
 export default function AddMateriModal({ isOpen, onClose, onSuccess }: AddMateriModalProps) {
@@ -44,14 +45,32 @@ export default function AddMateriModal({ isOpen, onClose, onSuccess }: AddMateri
             Tugasjabatan: tugasJabatan.filter(t => t.trim() !== ''),
             Keterampilan: keterampilan.filter(k => k.trim() !== ''),
         };
+        Swal.fire({
+            title: 'Memproses Permintaan Anda',
+            // html: 'AI sedang membuat outline, mohon tunggu...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            },
+        });
 
         try {
             await createBaseMateri(payload);
-            alert('Materi baru berhasil ditambahkan!');
-            onSuccess(); // Panggil fungsi refresh
-            onClose();   // Tutup modal
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: 'Modul Berhasil DiTambahkan!',
+            });
+            onSuccess();
+            onClose();
         } catch (err: any) {
-            setError(err.message || 'Terjadi kesalahan saat mengirim data.');
+            const errorMessage= 'Gagal menambahkan modul.' ;
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops... Terjadi Kesalahan',
+                text: errorMessage,
+            });
+            console.error(err.message);
         } finally {
             setIsSubmitting(false);
         }

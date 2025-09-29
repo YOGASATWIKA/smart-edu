@@ -1,293 +1,278 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { fetchModels } from '../../services/model/modelService.tsx';
-import ModulCard from '../../components/modulCard.tsx';
-import AddMateriModal from '../../components/addMateriModel.tsx';
-import {generateOutlines} from '../../services/modul/modulService.tsx';
-import {generateEbooks} from '../../services/ebook/ebookService.tsx';
-import PageBreadcrumb from '../../components/common/PageBreadCrumb.tsx';
-import PageMeta from '../../components/common/PageMeta.tsx';
-import {getModulByState, getModulById, Modul } from '../../services/modul/modulService.tsx';
-import ModulDetail from "../../components/modulDetail.tsx";
+import { useState, useEffect, FormEvent } from 'react';
+import PageBreadcrumb from "../../components/common/PageBreadCrumb";
+import PageMeta from "../../components/common/PageMeta";
+import ModelConfigModal from '../../components/model';
+import AddMateriModal from '../../components/modul';
+import EditableOutlineDisplay from '../../components/updateModulOutline.tsx';
+import { getModulByState, Modul, generateOutlines, updateModulOutline, Outline } from '../../services/modul/modulService';
+import { generateEbooks } from '../../services/ebook/ebookService.tsx';
+import { fetchModels } from '../../services/model/modelService';
+import {useNavigate} from "react-router-dom";
+import Swal from 'sweetalert2';
 
-
-
-export default function ModulListPage() {
+export default function Write() {
     const [modulList, setModulList] = useState<Modul[]>([]);
-    const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedModulIds, setSelectedModulIds] = useState<string[]>([]);
     const [modelList, setModelList] = useState<string[]>([]);
+    const [selectedModulId, setSelectedModulId] = useState<string[]>([]);
     const [selectedModel, setSelectedModel] = useState<string>('');
-    const [isGeneratingOutline, setIsGeneratingOutline] = useState(false);
-    const [isGeneratingEbook, setIsGeneratingEbook] = useState(false);
-    const [detailModul, setDetailModul] = useState<Modul | null>(null);
-    const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
-    const [detailError, setDetailError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [isGenerating, setIsGenerating] = useState<boolean>(false);
+    const [isGeneratingEbook] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
+    const [viewingModulId, setViewingModulId] = useState<string | null>(null);
+    const [isConfigModalOpen, setIsConfigModalOpen] = useState<boolean>(false);
+    const [isAddMateriModalOpen, setIsAddMateriModalOpen] = useState<boolean>(false);
 
-    const [filterStatus, setFilterStatus] = useState('ALL');
+    const fetchData = async () => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            const [modules, models] = await Promise.all([ getModulByState('MODUL'), fetchModels() ]);
+            setModulList(modules);
+            setModelList(models);
+            if (modules.length > 0) setSelectedModulId([modules[0]._id]);
+            if (models.length > 0) setSelectedModel(models[0]);
+        } catch (err: any) {
+            const errorMessage = 'Gagal memuat data.';
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops... Terjadi Kesalahan',
+                text: errorMessage,
+            });
+            console.log(errorMessage,':', err.message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    useEffect(() => { fetchData(); }, []);
+
     useEffect(() => {
-        const fetchData = async () => {
-            setIsLoading(true);
-            setError(null);
-            try {
-                const data = await getModulByState(filterStatus);
-                setModulList(data);
-            } catch (err: any) {
-                setError(err.message);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchData();
-    }, [filterStatus]);
+        if (modulList.length === 0 || selectedModulId.length === 0) {
+            setViewingModulId(null);
+            return;
+        }
+        const currentModul = modulList.find(m => m._id === selectedModulId[0]);
 
-        useEffect(() => {
-            const loadModels = async () => {
-                try {
-                    const modelsData = await fetchModels();
-                    setModelList(modelsData);
-                    if (modelsData.length > 0) {
-                        setSelectedModel(modelsData[0]);
-                    }
-                } catch (err: any) {
-                    console.error("Gagal memuat model:", err);
-                    // Tidak set error utama agar halaman tetap bisa jalan
-                }
-            };
-            loadModels();
-        }, []);
+        if (currentModul && currentModul.outline && currentModul.outline.list_materi && currentModul.outline.list_materi.length > 0) {
+            setViewingModulId(currentModul._id);
+        } else {
+            setViewingModulId(null);
+        }
 
-        const fetchModulData = useCallback(async () => {
-            try {
-                const data = await getModulByState(filterStatus);
-                setModulList(data);
-            } catch (err: any) {
-                setError(err.message || 'Gagal memuat ulang data modul');
-            }
-        }, [filterStatus]);
+    }, [selectedModulId, modulList]);
 
-    const { selectedDraftIds, selectedCompletedIds } = useMemo(() => {
-        const drafts: string[] = [];
-        const outline: string[] = [];
-
-        selectedModulIds.forEach(id => {
-            const modul = modulList.find(m => m._id === id);
-            if (modul) {
-                if (modul.state === 'DRAFT') drafts.push(id);
-                else if (modul.state === 'OUTLINE') outline.push(id);
-            }
+    const handleGenerate = async (e: FormEvent) => {
+        e.preventDefault();
+        if (selectedModulId.length === 0 || !selectedModel) return;
+        setIsGenerating(true);
+        setError(null);
+        setViewingModulId(null);
+        Swal.fire({
+            title: 'Memproses Permintaan Anda',
+            html: 'AI sedang membuat outline, mohon tunggu...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            },
         });
-        return { selectedDraftIds: drafts, selectedCompletedIds: outline };
-    }, [selectedModulIds, modulList]);
-
-    const handleSelectModul = (clickedId: string) => {
-        setSelectedModulIds(prevIds =>
-            prevIds.includes(clickedId)
-                ? prevIds.filter(id => id !== clickedId) // Hapus jika sudah ada (deselect)
-                : [...prevIds, clickedId] // Tambah jika belum ada (select)
-        );
-    };
-
-    const handleViewDetail = async (modulId: string) => {
-        setDetailModul(null); // Kosongkan data lama
-        setDetailError(null);
-        setIsDetailLoading(true);
-
         try {
-            const data = await getModulById(modulId);
-            setDetailModul(data);
+            await generateOutlines(selectedModulId, selectedModel);
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: 'Outline telah berhasil dibuat.',
+            });
+            setViewingModulId(selectedModulId[0]);
+            fetchData();
         } catch (err: any) {
-            setDetailError(err.message || "Gagal mengambil detail modul.");
+            const errorMessage = 'Gagal membuat outline.';
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops... Terjadi Kesalahan',
+                text: errorMessage,
+            });
+            console.log(errorMessage,':', err.message);
         } finally {
-            setIsDetailLoading(false);
+            setIsGenerating(false);
         }
     };
 
-    const handleCloseDetailModal = () => {
-        setDetailModul(null);
-        setDetailError(null);
-    };
-
-    const handleGenerateOutline = async () => {
-        if (selectedDraftIds.length === 0) return;
-
-        setIsGeneratingOutline(true); // Mulai loading
+    const handleSaveConfigAndGenerate = async (config: { model: string; role: string; instruction: string }) => {
+        setIsGenerating(true);
+        setError(null);
+        setViewingModulId(null);
+        setIsConfigModalOpen(false);
         try {
-            await generateOutlines(selectedDraftIds, selectedModel);
-            alert(`Permintaan untuk generate outline ${selectedDraftIds.length} modul berhasil dikirim! Halaman akan dimuat ulang.`);
-
-            // Kosongkan pilihan dan muat ulang data untuk melihat perubahan status
-            setSelectedModulIds([]);
-            fetchModulData();
+            await generateOutlines(selectedModulId, config.model);
+            setViewingModulId(selectedModulId[0]);
+            fetchData();
         } catch (err: any) {
-            // Tampilkan pesan error jika gagal
-            alert(`Error: ${err.message}`);
+            setError(err.message || 'Gagal membuat outline.');
         } finally {
-            // Hentikan loading, baik berhasil maupun gagal
-            setIsGeneratingOutline(false);
+            setIsGenerating(false);
         }
     };
 
-    const handleGenerateEbook = async () => {
-        if (selectedCompletedIds.length === 0) return;
-
-        setIsGeneratingEbook(true); // Mulai loading
+    const handleSaveChanges = async (modulId: string, updatedOutline: Outline) => {
+        Swal.fire({
+            title: 'Memproses Permintaan Anda',
+            html: 'AI sedang membuat outline, mohon tunggu...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            },
+        });
         try {
-            await generateEbooks(selectedCompletedIds, selectedModel);
-            alert(`Permintaan untuk generate ebook ${selectedCompletedIds.length} modul berhasil dikirim!`);
-
-            setSelectedModulIds([]);
-            fetchModulData();
+            await updateModulOutline(modulId, updatedOutline);
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: 'Outline telah berhasil disimpan.',
+            });
         } catch (err: any) {
-            alert(`Error: ${err.message}`);
-        } finally {
-            setIsGeneratingEbook(false); // Hentikan loading
+            const errorMessage = 'Gagal Menyimpan Outline';
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops... Terjadi Kesalahan',
+                text: errorMessage,
+            });
+            console.log(errorMessage,':', err.message);
         }
     };
 
-    // Tampilan saat loading
-    if (isLoading) {
-        return <div className="flex h-screen items-center justify-center"><p>Memuat data awal...</p></div>;
-    }
+    const navigate = useNavigate();
 
-    // Tampilan saat error
-    if (error) {
-        return <div className="flex h-screen items-center justify-center text-red-600"><p>Error: {error}</p></div>;
-    }
+    const handleGenerateEbookAndNavigation = async (modulId: string) => {
+        if (!selectedModel) {
+            alert('Silakan pilih model AI terlebih dahulu di panel kiri.');
+            return;
+        }
+        try {
+            navigate('/ebook', { state: { moduleId: modulId, isGenerating: true } });
+            await generateEbooks([modulId], selectedModel);
+        } catch (err: any) {
+            const errorMessage = 'Gagal Membuat Ebook';
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops... Terjadi Kesalahan',
+                text: errorMessage,
+            });
+            console.log("Gagal Membuat Ebook:", err.message);
+        }
+    };
+
+    const selectedModulObject = modulList.find(m => m._id === selectedModulId[0]);
 
     return (
         <>
-        <PageMeta
-            title="Buat Materi"
-            description="Lihat semua materi pokok yang telah dibuat."
-        />
-        <PageBreadcrumb pageTitle="Modul" />
+            <PageMeta title="Write - SmartEdu" description="Buat dan edit kerangka tulisan (outline) untuk modul." />
+            <PageBreadcrumb pageTitle="Write" />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <aside className="lg:col-span-1">
+                    <div className="sticky top-24">
+                        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Create Outline</h2>
 
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-            <div className="flex flex-col items-center justify-between rounded-lg shadow-sm sm:flex-row pb-4 ">
-                <div>
-                    <button
-                        onClick={() => setIsModalOpen(true)}
-                        className="inline-flex items-center justify-center gap-2 rounded-lg bg-sky-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-sky-700 focus:outline-none focus:ring-4 focus:ring-sky-300 dark:focus:ring-sky-800"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                             fill="none" stroke="currentColor" strokeWidth="2.5">
-                            <line x1="12" y1="5" x2="12" y2="19"></line>
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                        </svg>
-                        <span>Tambah Materi</span>
-                    </button>
-                </div>
+                            <form onSubmit={handleGenerate} className="space-y-5">
+                                <div>
+                                    <div className="flex justify-between items-center mb-2">
+                                        <label htmlFor="modul" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                            Modul Pembelajaran
+                                        </label>
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsAddMateriModalOpen(true)}
+                                            className="text-xs text-sky-600 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 font-semibold"
+                                        >
+                                            + Baru
+                                        </button>
+                                    </div>
+                                    <select
+                                        id="modul"
+                                        value={selectedModulId[0] || ''} // Baca dari elemen pertama
+                                        onChange={(e) => setSelectedModulId([e.target.value])} // Simpan sebagai array
+                                        disabled={isLoading || isGenerating}
+                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                    >
+                                        {isLoading ? (<option>Memuat...</option>) : (
+                                            modulList.map(modul => (
+                                                <option key={modul._id} value={modul._id}>
+                                                    {modul.materi_pokok.nama_jabatan}
+                                                </option>
+                                            ))
+                                        )}
+                                    </select>
+                                </div>
 
+                                {/* Dropdown Model */}
+                                <div>
+                                    <div className="flex justify-between items-center mb-2">
+                                        <label htmlFor="model" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                            Model
+                                        </label>
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsConfigModalOpen(true)}
+                                            disabled={selectedModulId.length === 0}
+                                            className="text-xs text-sky-600 hover:text-sky-800 dark:text-sky-400 dark:hover:text-sky-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            Promt
+                                        </button>
+                                    </div>
+                                    <select
+                                        id="model"
+                                        value={selectedModel}
+                                        onChange={(e) => setSelectedModel(e.target.value)}
+                                        disabled={isLoading || isGenerating}
+                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                    >
+                                        {isLoading ? (
+                                            <option>Memuat...</option>
+                                        ) : (
+                                            modelList.map(model => (
+                                                <option key={model} value={model}>
+                                                    {model}
+                                                </option>
+                                            ))
+                                        )}
+                                    </select>
+                                </div>
 
-                <div className="flex items-center gap-4">
-                    <select
-                        value={selectedModel}
-                        onChange={(e) => setSelectedModel(e.target.value)}
-                        className="min-w-36 rounded-md border-gray-300 bg-white py-2 pr-8 text-sm shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                    >
-                        {modelList.length === 0 && <option>Memuat...</option>}
-                        {modelList.map(model => <option key={model} value={model}>{model}</option>)}
-                    </select>
-                    <div className="relative ">
-                        <select
-                            id="status-filter"
-                            value={filterStatus}
-                            onChange={(e) => setFilterStatus(e.target.value)}
-                            className="min-w-36 rounded-md border-gray-300 bg-white py-2 pr-8 text-sm shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                        >
-                            <option value="ALL">All</option>
-                            <option value="DRAFT">Draft</option>
-                            <option value="OUTLINE">Outline</option>
-                        </select>
+                                <button
+                                    type="submit"
+                                    disabled={isLoading || isGenerating || selectedModulId.length === 0} // Cek panjang array
+                                    className="w-full rounded-lg bg-sky-600 px-5 py-3 text-base font-semibold text-white shadow-md transition hover:bg-sky-700 focus:outline-none focus:ring-4 focus:ring-sky-300 disabled:bg-sky-400 disabled:cursor-not-allowed dark:focus:ring-sky-800"
+                                >
+                                    {isGenerating ? 'Sedang Membuat...' : 'Generate Outline'}
+                                </button>
+                            </form>
+                        </div>
                     </div>
-                </div>
+                </aside>
+
+                {/* Panel Kanan untuk Menampilkan Hasil */}
+                <main className="lg:col-span-2">
+                    { isGenerating ? (
+                        <div className="flex items-center justify-center min-h-[70vh]"><p>Membuat Outline...</p></div>
+                    ) : error ? (
+                        <div className="flex items-center justify-center min-h-[70vh] text-red-500"><p>{error}</p></div>
+                    ) : viewingModulId ? (
+                        <EditableOutlineDisplay
+                            modulId={viewingModulId}
+                            onSave={handleSaveChanges}
+                            onGenerateEbook={handleGenerateEbookAndNavigation}
+                            isEbookLoading={isGeneratingEbook}
+                        />
+                    ) : (
+                        <div className="flex items-center justify-center min-h-[70vh] w-full rounded-xl border-2 border-dashed border-gray-300">
+                            <p className="text-gray-500">Hasil outline akan muncul di sini.</p>
+                        </div>
+                    )}
+                </main>
             </div>
-            <main>
-                {modulList.length > 0 ? (
-                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                        {modulList.map((modul) => (
-                            <ModulCard
-                                key={modul._id}
-                                modul={modul}
-                                isSelected={selectedModulIds.includes(modul._id)}
-                                onSelect={handleSelectModul}
-                                onViewDetail={() => handleViewDetail(modul._id)}
-                                isDisabled={false}                            />
-                        ))}
-                    </div>
-                ) : (
-                    <div className="py-16 text-center">
-                        <p className="text-gray-500">Belum ada modul yang tersedia. Silakan buat materi baru.</p>
-                    </div>
-                )}
 
-            </main>
-
-                <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-gray-200 bg-white/80 p-4 shadow-lg backdrop-blur-sm dark:border-gray-700 dark:bg-gray-900/80">
-                    <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-6 gap-y-4">
-
-                        {/* Bagian Kiri: Informasi Jumlah yang Dipilih */}
-                        <div className="flex items-center gap-3">
-                            <div className="flex -space-x-2">
-                                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white ring-2 ring-white dark:ring-gray-800">
-                                    {selectedModulIds.length}
-                                </span>
-                            </div>
-                            <div>
-                                <p className="font-semibold text-gray-800 dark:text-gray-200">
-                                    Modul Terpilih
-                                </p>
-                                <p className="text-xs text-gray-500">
-                                    {selectedDraftIds.length} Draft, {selectedCompletedIds.length} Completed
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* Bagian Kanan: Semua Tombol Aksi */}
-                        <div className="flex flex-wrap items-center gap-4">
-                            {/* Grup Aksi Generate (Terkait dengan item yang dipilih) */}
-                            <div className="flex items-center gap-5 p-2 rounded-lg bg-gray-100 dark:bg-gray-800">
-                                <button
-                                    onClick={handleGenerateOutline}
-                                    disabled={selectedDraftIds.length === 0 || isGeneratingOutline}
-                                    className="inline-flex items-center justify-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400"
-                                >
-                                    <span>Generate Outline</span>
-                                    <span className="rounded-full bg-blue-200 px-2 py-0.5 text-xs font-bold text-blue-800">{selectedDraftIds.length}</span>
-                                </button>
-
-                                <button
-                                    onClick={handleGenerateEbook}
-                                    disabled={selectedCompletedIds.length === 0 || isGeneratingEbook}
-                                    className="inline-flex items-center justify-center gap-2 rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-gray-400"
-                                >
-                                    <span>Generate Ebook</span>
-                                    <span className="rounded-full bg-green-200 px-2 py-0.5 text-xs font-bold text-green-800">{selectedCompletedIds.length}</span>
-                                </button>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-
-
-            <AddMateriModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                onSuccess={fetchModulData}
-            />
-            {(isDetailLoading || detailModul || detailError) && (
-                <ModulDetail
-                    materi={detailModul}
-                    isLoading={isDetailLoading}
-                    error={detailError}
-                    onClose={handleCloseDetailModal} onUpdateSuccess={function (): void {
-                    throw new Error("Function not implemented.");
-                }}                />
-            )}
-        </div>
+            <AddMateriModal isOpen={isAddMateriModalOpen} onClose={() => setIsAddMateriModalOpen(false)} onSuccess={() => { setIsAddMateriModalOpen(false); fetchData(); }} />
+            <ModelConfigModal isOpen={isConfigModalOpen} onClose={() => setIsConfigModalOpen(false)} onSave={handleSaveConfigAndGenerate} selectedModul={selectedModulObject} />
         </>
     );
-}
+};
