@@ -3,26 +3,27 @@ import PageMeta from "../../components/common/PageMeta";
 import {Link} from "react-router";
 import {useEffect, useState} from "react";
 import RecentActivityList from '../../components/recentActivityList.tsx';
+import {getProfile, User} from "../../services/auth/authService.tsx";
 
 
 export default function SmartEdu() {
-    const [name, setName] = useState('Pengguna Baru');
+    const [name, setName] = useState('User');
     useEffect(() => {
         const fetchUserData = async () => {
+            const token = localStorage.getItem('authToken');
+
+            if (!token) {
+                console.error("Token tidak ditemukan, tidak bisa mengambil data user.");
+                return;
+            }
             try {
-                const userString = localStorage.getItem('user');
-                if (!userString) {
-                    console.error("Data 'user' tidak ditemukan di local storage.");
-                    return;
-                }
-                const userData = JSON.parse(userString);
-                if (userData && typeof userData === 'object' && userData.name) {
-                    setName(userData.name);
-                } else {
-                    console.error("Format data 'user' di local storage tidak sesuai, properti 'name' tidak ditemukan.", userData);
-                }
+                const userData: User = await getProfile(token);
+
+                const defaultName = "Pengguna Baru";
+
+                setName(userData.name ?? defaultName);
             } catch (error) {
-                console.error("Gagal mem-parsing data 'user' dari local storage:", error);
+                console.error("Gagal mengambil data profil:", error);
             }
         };
 
