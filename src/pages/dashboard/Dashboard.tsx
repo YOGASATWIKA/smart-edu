@@ -6,7 +6,7 @@ import RecentActivityList from '../../components/recentActivityList.tsx';
 
 
 export default function SmartEdu() {
-    const [name, setName] = useState('Loading...');
+    const [name, setName] = useState('Pengguna Baru');
     useEffect(() => {
         const fetchUserData = async () => {
             try {
