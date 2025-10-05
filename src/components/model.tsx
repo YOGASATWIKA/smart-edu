@@ -1,38 +1,46 @@
 import { useState, FormEvent, useEffect } from 'react';
-import { fetchModels } from '../services/model/modelService';
+import { getModelOutline } from '../services/model/modelService';
 import type { Modul } from '../services/modul/modulService';
 import Swal from "sweetalert2";
+
+export interface ModelConfigPayload {
+    model: string;
+    promt: {
+        system_prompt: string;
+        user_prompts: string[];
+    };
+}
 
 interface ModelConfigModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSave: (config: { model: string; role: string; instruction: string }) => Promise<void>;
+    onSave: (config: ModelConfigPayload) => Promise<void>;
     selectedModul?: Modul;
 }
 
 export default function ModelConfigModal({ isOpen, onClose, onSave, selectedModul }: ModelConfigModalProps) {
     const [availableModels, setAvailableModels] = useState<string[]>([]);
     const [selectedModel, setSelectedModel] = useState<string>('');
-    const [role, setRole] = useState<string>('Anda adalah pejabat yang memiliki kompetensi...');
+    const [systemPrompt, setSystemPrompt] = useState<string>('');
     const [instruction, setInstruction] = useState<string>('');
-    const [customInstructions, setCustomInstructions] = useState<string[]>([]); // ✅ State untuk instruksi tambahan
+    const [customInstructions, setCustomInstructions] = useState<string[]>([]);
     const [isLoadingModels, setIsLoadingModels] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const defaultInstructionPart1 = `Apa kompetensi bidang/teknis yang harus dimiliki oleh seseorang dengan...`;
-    const defaultInstructionPart2 = `Berdasarkan kompetensi bidang/teknis tersebut, apa materi pokok yang perlu dipelajari...`;
-
+    // ... (useEffect dan fungsi lainnya tetap sama)
     useEffect(() => {
         if (isOpen) {
             const loadModels = async () => {
                 setIsLoadingModels(true);
                 try {
-                    const models = await fetchModels();
+                    const models = await getModelOutline();
                     setAvailableModels(models);
                     if (models.length > 0) setSelectedModel(models[0]);
                 } catch (err) {
-                    console.error('Terjadi kesalahan saat POST data:', err);
+                    // Anda bisa menampilkan error ke user di sini jika diperlukan
+                    console.error('Gagal memuat model:', err);
+                    setError('Gagal memuat daftar model dari server.');
                 }
                 finally { setIsLoadingModels(false); }
             };
@@ -42,14 +50,16 @@ export default function ModelConfigModal({ isOpen, onClose, onSave, selectedModu
                 const generatedInstruction = `Apa kompetensi bidang/teknis yang harus dimiliki oleh seseorang dengan\nNama Jabatan: *${selectedModul.materi_pokok.nama_jabatan}*\nTugas Jabatan: *${selectedModul.materi_pokok.tugas_jabatan?.join(', ')}*\nKeterampilan: *${selectedModul.materi_pokok.keterampilan?.join(', ')}*\n\nBerdasarkan kompetensi tersebut, apa materi pokok yang perlu dipelajari...`;
                 setInstruction(generatedInstruction);
             } else {
+                const defaultInstructionPart1 = `Apa kompetensi bidang/teknis yang harus dimiliki oleh seseorang dengan...`;
+                const defaultInstructionPart2 = `Berdasarkan kompetensi bidang/teknis tersebut, apa materi pokok yang perlu dipelajari...`;
                 setInstruction(defaultInstructionPart1 + "\n\n" + defaultInstructionPart2);
             }
         } else {
-            // Reset state saat modal ditutup
             setCustomInstructions([]);
             setError(null);
         }
     }, [isOpen, selectedModul]);
+
 
     const handleAddInstruction = () => setCustomInstructions(prev => [...prev, '']);
     const handleCustomInstructionChange = (index: number, value: string) => {
@@ -58,7 +68,6 @@ export default function ModelConfigModal({ isOpen, onClose, onSave, selectedModu
         setCustomInstructions(updated);
     };
     const handleRemoveInstruction = (index: number) => setCustomInstructions(prev => prev.filter((_, i) => i !== index));
-
 
 
     const handleSubmit = async (e: FormEvent) => {
@@ -74,24 +83,39 @@ export default function ModelConfigModal({ isOpen, onClose, onSave, selectedModu
             },
         });
 
-        const finalInstruction = [instruction, ...customInstructions].filter(Boolean).join('\n\n');
+        // --- PERUBAHAN ---
+        // Membuat array user_prompts dari instruksi utama dan instruksi tambahan
+        const userPrompts = [instruction, ...customInstructions].filter(Boolean);
+
+        // --- PERUBAHAN ---
+        // Membuat objek payload sesuai dengan struktur yang diinginkan API
+        const payload: ModelConfigPayload = {
+            model: selectedModel,
+            promt: { // Sesuai dengan contoh output Anda, "promt" bukan "prompt"
+                system_prompt: systemPrompt,
+                user_prompts: userPrompts,
+            }
+        };
 
         try {
-            await onSave({ model: selectedModel, role, instruction: finalInstruction });
+            // --- PERUBAHAN ---
+            // Mengirim payload yang sudah terstruktur
+            await onSave(payload);
+
             Swal.fire({
                 icon: 'success',
                 title: 'Berhasil!',
-                text: 'Konfigurasi Model Berhasil DiTambahkan!',
+                text: 'Konfigurasi Model Berhasil Ditambahkan!',
             });
             onClose();
         } catch (err: any) {
-            const errorMessage= 'Gagal menambahkan konfigurasi model' ;
+            const errorMessage = 'Gagal menambahkan konfigurasi model';
             Swal.fire({
                 icon: 'error',
                 title: 'Oops... Terjadi Kesalahan',
                 text: errorMessage,
             });
-            console.log(errorMessage,':', err.message);
+            console.error(errorMessage, ':', err.message);
         } finally {
             setIsSubmitting(false);
         }
@@ -106,29 +130,30 @@ export default function ModelConfigModal({ isOpen, onClose, onSave, selectedModu
                 <form onSubmit={handleSubmit}>
                     {/* Dropdown Model */}
                     <div className="mb-4">
-                        <label className="block mb-2 text-sm font-medium text-gray-700">Model</label>
-                        <select value={selectedModel} onChange={(e) => setSelectedModel(e.target.value)} disabled={isLoadingModels || isSubmitting} className="w-full rounded-md border-gray-300">
+                        <label htmlFor="model-select" className="block mb-2 text-sm font-medium text-gray-700">Model</label>
+                        <select id="model-select" value={selectedModel} onChange={(e) => setSelectedModel(e.target.value)} disabled={isLoadingModels || isSubmitting} className="w-full rounded-md border-gray-300">
                             {isLoadingModels ? <option>Loading...</option> : availableModels.map(m => <option key={m} value={m}>{m}</option>)}
                         </select>
                     </div>
 
-                    {/* Textarea Role */}
+                    {/* Textarea Role / System Prompt */}
                     <div className="mb-4">
-                        <label className="block mb-2 text-sm font-medium">Role</label>
-                        <textarea value={role} onChange={(e) => setRole(e.target.value)} rows={4} className="w-full rounded-md border-gray-300" />
+                        {/* --- PERUBAHAN --- */}
+                        <label htmlFor="system-prompt" className="block mb-2 text-sm font-medium">Role (System Prompt)</label>
+                        <textarea id="system-prompt" value={systemPrompt} onChange={(e) => setSystemPrompt(e.target.value)} rows={4} className="w-full rounded-md border-gray-300" />
                     </div>
 
                     {/* Textarea Instruction Utama */}
                     <div className="mb-4">
-                        <label className="block mb-2 text-sm font-medium">Instruction</label>
-                        <textarea value={instruction.replace(/\\n/g, '\n')} rows={8} className="w-full rounded-md border-gray-300 bg-slate-50" readOnly />
+                        <label htmlFor="main-instruction" className="block mb-2 text-sm font-medium">Instruction (User Prompt #1)</label>
+                        <textarea id="main-instruction" value={instruction.replace(/\\n/g, '\n')} rows={8} className="w-full rounded-md border-gray-300 bg-slate-50" readOnly />
                     </div>
 
-                    {/* ✅ Bagian Instruksi Tambahan yang Fungsional */}
+                    {/* Bagian Instruksi Tambahan */}
                     <div className="mb-6">
                         {customInstructions.map((instr, index) => (
                             <div key={index} className="relative mt-2">
-                                <textarea value={instr} onChange={(e) => handleCustomInstructionChange(index, e.target.value)} rows={3} className="w-full rounded-md border-gray-300 pr-8" placeholder={`Instruksi tambahan #${index + 1}`} />
+                                <textarea value={instr} onChange={(e) => handleCustomInstructionChange(index, e.target.value)} rows={3} className="w-full rounded-md border-gray-300 pr-8" placeholder={`Instruksi tambahan #${index + 2}`} />
                                 <button type="button" onClick={() => handleRemoveInstruction(index)} className="absolute top-2 right-2 text-gray-400 hover:text-red-500 font-bold">&times;</button>
                             </div>
                         ))}

@@ -6,7 +6,7 @@ import AddMateriModal from '../../components/modul';
 import EditableOutlineDisplay from '../../components/updateModulOutline.tsx';
 import { getModulByState, Modul, generateOutlines, updateModulOutline, Outline } from '../../services/modul/modulService';
 import { generateEbooks } from '../../services/ebook/ebookService.tsx';
-import { fetchModels } from '../../services/model/modelService';
+import { getModelOutline } from '../../services/model/modelService';
 import {useNavigate} from "react-router-dom";
 import Swal from 'sweetalert2';
 
@@ -27,7 +27,7 @@ export default function Write() {
         setIsLoading(true);
         setError(null);
         try {
-            const [modules, models] = await Promise.all([ getModulByState('MODUL'), fetchModels() ]);
+            const [modules, models] = await Promise.all([ getModulByState('MODUL'), getModelOutline() ]);
             setModulList(modules);
             setModelList(models);
             if (modules.length > 0) setSelectedModulId([modules[0]._id]);
@@ -272,7 +272,7 @@ export default function Write() {
             </div>
 
             <AddMateriModal isOpen={isAddMateriModalOpen} onClose={() => setIsAddMateriModalOpen(false)} onSuccess={() => { setIsAddMateriModalOpen(false); fetchData(); }} />
-            <ModelConfigModal isOpen={isConfigModalOpen} onClose={() => setIsConfigModalOpen(false)} onSave={handleSaveConfigAndGenerate} selectedModul={selectedModulObject} />
+            {/*<ModelConfigModal isOpen={isConfigModalOpen} onClose={() => setIsConfigModalOpen(false)} onSave={handleSaveConfigAndGenerate} selectedModul={selectedModulObject} />*/}
         </>
     );
 };

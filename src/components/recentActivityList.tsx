@@ -48,7 +48,7 @@ export default function ActivityTimeline() {
                 setIsLoading(true);
                 // Ambil data dan urutkan dari yang terbaru
                 const data = await getActivity();
-                const sortedData = data.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+                const sortedData = data.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
                 setActivities(sortedData);
             } catch (err: any) {
                 setError(err.message);
@@ -75,10 +75,10 @@ export default function ActivityTimeline() {
               </span>
                             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{activity.nama_jabatan}</h3>
-                                <time className="block sm:hidden mb-2 text-sm font-normal leading-none text-gray-400 dark:text-gray-500">{formatDate(activity.created_at)}</time>
+                                <time className="block sm:hidden mb-2 text-sm font-normal leading-none text-gray-400 dark:text-gray-500">{formatDate(activity.updated_at)}</time>
                                 <span className={`rounded-full px-3 py-1 text-xs font-semibold ${config.color}`}>{activity.state}</span>
                             </div>
-                            <time className="hidden sm:block mt-1 text-sm font-normal leading-none text-gray-400 dark:text-gray-500">{formatDate(activity.created_at)}</time>
+                            <time className="hidden sm:block mt-1 text-sm font-normal leading-none text-gray-400 dark:text-gray-500">{formatDate(activity.updated_at)}</time>
                         </li>
                     );
                 })}
