@@ -34,9 +34,12 @@ export default function ModelConfigModal({ isOpen, onClose, onSave, selectedModu
             const loadModels = async () => {
                 setIsLoadingModels(true);
                 try {
-                    const models = await getModelOutline();
-                    setAvailableModels(models);
-                    if (models.length > 0) setSelectedModel(models[0]);
+                    const modelsData = await getModelOutline('OUTLINE');
+                    const modelNames = modelsData.map((m: any) => m.model_name); // Sesuaikan jika struktur data berbeda
+                    setAvailableModels(modelNames);
+                    if (modelNames.length > 0) {
+                        setSelectedModel(modelNames[0]);
+                    }
                 } catch (err) {
                     // Anda bisa menampilkan error ke user di sini jika diperlukan
                     console.error('Gagal memuat model:', err);

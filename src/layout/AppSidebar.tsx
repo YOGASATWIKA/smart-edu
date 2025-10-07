@@ -9,6 +9,7 @@ import {
     PencilIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
+import {LuLightbulb} from "react-icons/lu";
 
 type NavItem = {
   name: string;
@@ -23,6 +24,11 @@ const navItems: NavItem[] = [
     name: "Dashboard",
     path: "/",
   },
+    {
+        icon: <LuLightbulb />,
+        name: "Model",
+        path: "/model",
+    },
   {
     icon: <PencilIcon />,
     name: "Write",

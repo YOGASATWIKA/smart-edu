@@ -7,12 +7,12 @@ import AddMateriModal from '../../components/modul';
 import EditableOutlineDisplay from '../../components/updateModulOutline';
 import { getModulByState, Modul, generateOutlines, updateModulOutline, Outline } from '../../services/modul/modulService';
 import { generateEbooks } from '../../services/ebook/ebookService';
-import { getModelOutline } from '../../services/model/modelService';
+import {getModelOutline, Model} from '../../services/model/modelService';
 
 export default function Write() {
     // --- STATE MANAGEMENT ---
     const [modulList, setModulList] = useState<Modul[]>([]);
-    const [modelList, setModelList] = useState<string[]>([]);
+    const [modelList, setModelList] = useState<Model[]>([]);
     const [selectedModulId, setSelectedModulId] = useState<string>('');
     const [selectedModel, setSelectedModel] = useState<string>('');
     const [isInitialLoading, setIsInitialLoading] = useState<boolean>(true);
@@ -31,7 +31,7 @@ export default function Write() {
         setIsInitialLoading(true);
         setError(null);
         try {
-            const [modules, models] = await Promise.all([ getModulByState('MODUL'), getModelOutline() ]);
+            const [modules, models] = await Promise.all([ getModulByState('MODUL'), getModelOutline('OUTLINE') ]);
             setModulList(modules);
             setModelList(models);
 
@@ -40,7 +40,7 @@ export default function Write() {
                 setSelectedModulId(modules[0]._id);
             }
             if (models.length > 0 && selectedModel === '') {
-                setSelectedModel(models[0]);
+                setSelectedModel(models[0].model);
             }
         } catch (err: any) {
             const errorMessage = 'Gagal memuat data awal.';
@@ -187,7 +187,7 @@ export default function Write() {
                                         className="w-full rounded-lg border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                                     >
                                         {isInitialLoading ? (<option>Memuat model...</option>) : (
-                                            modelList.map(model => (<option key={model} value={model}>{model}</option>))
+                                            modelList.map(model => (<option key={model.model} value={model.model}>{model.model}</option>))
                                         )}
                                     </select>
                                 </div>

@@ -8,6 +8,7 @@ import Home from "./pages/dashboard/Dashboard";
 import Ebook from "./pages/ebook/Ebook";
 import Document from "./pages/ebook/Document";
 import Modul from "./pages/modul/Write";
+import Model from "./pages/model/model"
 // Layout & Component Imports
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
@@ -26,6 +27,7 @@ export default function App() {
           <Route element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
               <Route index path="/" element={<Home />} />
+                <Route path="/model" element={<Model />} />
                 <Route path="/write" element={<Modul />} />
                 <Route path="/document" element={<Document />} />
               <Route path="/ebook" element={<Ebook />} />
