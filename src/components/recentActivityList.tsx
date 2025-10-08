@@ -70,9 +70,9 @@ export default function ActivityTimeline() {
                     const config = stateConfig[activity.state] || stateConfig.DRAFT;
                     return (
                         <li key={activity._id} className={`mb-10 ml-10 ${index === activities.length - 1 ? 'mb-0' : ''}`}>
-              <span className={`absolute -left-5 flex h-9 w-9 items-center justify-center rounded-full ring-8 ring-white dark:ring-gray-900 ${config.color}`}>
-                {config.icon}
-              </span>
+                          <span className={`absolute -left-5 flex h-9 w-9 items-center justify-center rounded-full ring-8 ring-white dark:ring-gray-900 ${config.color}`}>
+                            {config.icon}
+                          </span>
                             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{activity.nama_jabatan}</h3>
                                 <time className="block sm:hidden mb-2 text-sm font-normal leading-none text-gray-400 dark:text-gray-500">{formatDate(activity.updated_at)}</time>
