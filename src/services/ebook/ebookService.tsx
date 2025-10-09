@@ -33,6 +33,7 @@ export interface Ebook {
     _id: string;
     title: string;
     parts: Part[];
+
     modul: string;
     created_at: string;
     updated_at?: string;
@@ -61,7 +62,7 @@ export const generateEbooks = async (modulIds: string[], model: string): Promise
     return await response.json();
 };
 
-export const getEbookById = async (id: string): Promise<any> => {
+export const getEbookByModuleId = async (id: string): Promise<any> => {
     const response = await fetch(`${API_BASE_URL}/ebook/${id}`);
     if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: `Gagal mengambil ebook Status: ${response.status}` }));
@@ -80,4 +81,23 @@ export const getEbookById = async (id: string): Promise<any> => {
         });
     }
 };
+
+
+export const updateEbookById = async (id: string, payload: any): Promise<any> => {
+    const response = await fetch(`${API_BASE_URL}/ebook/${id}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: "Terjadi kesalahan pada server." }));
+        throw new Error(errorData.message || `Gagal memperbarui ebook. Status: ${response.status}`);
+    }
+
+    return await response.json();
+};
+
 

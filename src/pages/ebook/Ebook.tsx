@@ -6,20 +6,15 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import TextAlign from '@tiptap/extension-text-align';
-import { Ebook, getEbookById } from '../../services/ebook/ebookService';
+import {Ebook, getEbookByModuleId, updateEbookById} from '../../services/ebook/ebookService';
 import { LoadingSpinner } from '../../components/loadingSpinner';
 import { TiptapToolbar } from '../../components/ui/ebook/TipTapToolbar';
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from 'docx';
 
-// ============================================
-// KONSTANTA KONFIGURASI
-// ============================================
+
 const POLLING_INTERVAL = 10000;
 const MAX_POLLING_ATTEMPTS = 144;
 
-// ============================================
-// UTILITY FUNCTIONS
-// ============================================
 const transformEbookToHtml = (ebook: Ebook): string => {
     try {
         let htmlContent = `<h1>${ebook.title || 'Untitled'}</h1>`;
@@ -213,7 +208,7 @@ export default function EbookViewerPage() {
 
         try {
             console.log('Fetching ebook with ID:', id);
-            const data = await getEbookById(id);
+            const data = await getEbookByModuleId(id);
             console.log('Ebook data received:', data);
             setEbook(data);
             setError(null);
@@ -358,35 +353,47 @@ export default function EbookViewerPage() {
     }, [ebook]);
 
     const handleSaveChanges = useCallback(async () => {
-        if (!editor || editor.isDestroyed) return;
+        if (!editor || editor.isDestroyed || !ebook || !id) return;
 
         setIsSaving(true);
 
         try {
+            // Ambil hasil dari editor
             const htmlContent = editor.getHTML();
             const jsonContent = editor.getJSON();
 
-            console.log("=== SAVING ===");
-            console.log("Module ID:", id);
-            console.log("HTML:", htmlContent);
-            console.log("JSON:", jsonContent);
+            // Buat payload yang akan dikirim ke server
+            const payload = {
+                title: ebook.title,
+                modul: ebook.modul,
+                parts: ebook.parts,
+                html_content: htmlContent,
+                json_content: jsonContent,
+                updated_at: new Date().toISOString(),
+            };
+
+            console.log("=== UPDATE EBOOK ===");
+            console.log("Payload:", payload);
+
+            const result = await updateEbookById(id, payload);
+            console.log("Server response:", result);
 
             setHasUnsavedChanges(false);
 
             Swal.fire({
-                icon: 'success',
-                title: 'Berhasil!',
-                text: 'Perubahan berhasil disimpan (cek console).',
+                icon: "success",
+                title: "Berhasil!",
+                text: "Perubahan berhasil disimpan ke server.",
                 timer: 2000,
                 showConfirmButton: false,
             });
         } catch (err: any) {
-            console.error("Error saving:", err);
-            Swal.fire('Error', 'Gagal menyimpan perubahan.', 'error');
+            console.error("Error updating ebook:", err);
+            Swal.fire("Error", err.message || "Gagal menyimpan perubahan.", "error");
         } finally {
             setIsSaving(false);
         }
-    }, [editor, id]);
+    }, [editor, ebook, id]);
 
     useEffect(() => {
         return () => {
@@ -456,7 +463,6 @@ export default function EbookViewerPage() {
                             )}
                         </div>
 
-                        {/* Right side - Action buttons */}
                         <div className="flex flex-wrap items-center gap-3">
                             <button
                                 onClick={handleSaveChanges}
