@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import Swal from "sweetalert2";
-import { saveAs } from 'file-saver';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
@@ -9,7 +8,6 @@ import TextAlign from '@tiptap/extension-text-align';
 import {Ebook, getEbookByModuleId, updateEbookById} from '../../services/ebook/ebookService';
 import { LoadingSpinner } from '../../components/loadingSpinner';
 import { TiptapToolbar } from '../../components/ui/ebook/TipTapToolbar';
-import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from 'docx';
 
 
 const POLLING_INTERVAL = 10000;
@@ -57,114 +55,6 @@ const transformEbookToHtml = (ebook: Ebook): string => {
     }
 };
 
-const transformEbookToDocx = (ebook: Ebook): Paragraph[] => {
-    const paragraphs: Paragraph[] = [];
-
-    try {
-        paragraphs.push(
-            new Paragraph({
-                text: ebook.title || 'Untitled',
-                heading: HeadingLevel.TITLE,
-                spacing: { after: 400 },
-            })
-        );
-
-        if (!ebook.parts || !Array.isArray(ebook.parts)) {
-            paragraphs.push(new Paragraph({ text: 'Konten tidak tersedia' }));
-            return paragraphs;
-        }
-
-        ebook.parts.forEach((part, partIndex) => {
-            paragraphs.push(
-                new Paragraph({
-                    text: `Bab ${partIndex + 1}: ${part.subject || 'Tanpa Judul'}`,
-                    heading: HeadingLevel.HEADING_1,
-                    spacing: { before: 400, after: 200 },
-                })
-            );
-
-            if (!part.chapters || !Array.isArray(part.chapters)) return;
-
-            part.chapters.forEach((chapter, chapterIndex) => {
-                paragraphs.push(
-                    new Paragraph({
-                        text: `${partIndex + 1}.${chapterIndex + 1} ${chapter.title || 'Tanpa Judul'}`,
-                        heading: HeadingLevel.HEADING_2,
-                        spacing: { before: 300, after: 150 },
-                    })
-                );
-
-                if (!chapter.materials || !Array.isArray(chapter.materials)) return;
-
-                chapter.materials.forEach((material) => {
-                    paragraphs.push(
-                        new Paragraph({
-                            text: material.title || 'Tanpa Judul',
-                            heading: HeadingLevel.HEADING_3,
-                            spacing: { before: 200, after: 100 },
-                        })
-                    );
-
-                    if (material.short) {
-                        paragraphs.push(
-                            new Paragraph({
-                                children: [
-                                    new TextRun({
-                                        text: `"${material.short}"`,
-                                        italics: true,
-                                    }),
-                                ],
-                                spacing: { after: 150 },
-                            })
-                        );
-                    }
-
-                    if (!material.details || !Array.isArray(material.details)) return;
-
-                    material.details.forEach((detail) => {
-                        if (detail.content) {
-                            paragraphs.push(
-                                new Paragraph({
-                                    text: detail.content,
-                                    spacing: { after: 100 },
-                                    alignment: AlignmentType.JUSTIFIED,
-                                })
-                            );
-                        }
-
-                        if (detail.expanded) {
-                            paragraphs.push(
-                                new Paragraph({
-                                    text: detail.expanded,
-                                    spacing: { after: 100 },
-                                    alignment: AlignmentType.JUSTIFIED,
-                                })
-                            );
-                        }
-                    });
-                });
-            });
-        });
-
-        return paragraphs;
-    } catch (error) {
-        console.error('Error transforming ebook to docx:', error);
-        paragraphs.push(new Paragraph({ text: 'Error membuat dokumen.' }));
-        return paragraphs;
-    }
-};
-
-const sanitizeFilename = (filename: string): string => {
-    return filename
-        .replace(/[^a-z0-9\s]/gi, '_')
-        .replace(/\s+/g, '_')
-        .toLowerCase()
-        .substring(0, 100);
-};
-
-// ============================================
-// MAIN COMPONENT
-// ============================================
 export default function EbookViewerPage() {
     const location = useLocation();
     const id = location.state?.moduleId;
@@ -173,7 +63,7 @@ export default function EbookViewerPage() {
     const [ebook, setEbook] = useState<Ebook | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [isDownloadingDocx, setIsDownloadingDocx] = useState(false);
+    const [isDownloadingDocx] = useState(false);
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
 
@@ -226,10 +116,10 @@ export default function EbookViewerPage() {
     }, [id]);
 
     useEffect(() => {
-        console.log('Polling effect triggered');
+        console.log('📡 Polling effect triggered');
 
         if (!id) {
-            console.error('No ID, showing error');
+            console.error('❌ No ID, showing error');
             setIsLoading(false);
             Swal.fire({
                 icon: 'error',
@@ -243,114 +133,85 @@ export default function EbookViewerPage() {
         let isMounted = true;
 
         const poll = async () => {
-            if (!isMounted) return;
-            console.log('Polling...');
+            if (!isMounted) return false;
+
+            console.log('🔄 Polling fetch...');
             const success = await fetchEbook();
+
+            // Jika ebook belum tersedia, pastikan loading tetap true
+            if (!success && isMounted) {
+                setIsLoading(true);
+            }
+
             return success;
         };
 
         const startPolling = async () => {
             let attempts = 0;
+            setIsLoading(true); // ⬅️ Set true dari awal
 
-            console.log('Starting initial fetch...');
+            console.log('🚀 Starting initial fetch...');
             const initialSuccess = await poll();
 
             if (initialSuccess) {
-                console.log('Initial fetch successful');
-                setIsLoading(false);
+                console.log('✅ Initial fetch successful');
+                if (isMounted) setIsLoading(false);
                 return;
             }
 
             if (isGenerating && isMounted) {
-                console.log('Starting polling interval...');
+                console.log('⏱️ Starting polling interval...');
                 intervalId = setInterval(async () => {
                     if (!isMounted) return;
 
                     attempts++;
-                    console.log(`Polling attempt ${attempts}/${MAX_POLLING_ATTEMPTS}`);
+                    console.log(`Attempt ${attempts}/${MAX_POLLING_ATTEMPTS}`);
 
                     const success = await poll();
 
                     if (success) {
-                        console.log('Polling successful, stopping...');
+                        console.log('✅ Ebook ready, stopping polling...');
                         if (intervalId) clearInterval(intervalId);
-                        setIsLoading(false);
+                        if (isMounted) setIsLoading(false);
                     } else if (attempts >= MAX_POLLING_ATTEMPTS) {
-                        console.log('Max attempts reached, stopping...');
+                        console.warn('⚠️ Max attempts reached, stopping polling...');
                         if (intervalId) clearInterval(intervalId);
-                        setIsLoading(false);
+                        if (isMounted) setIsLoading(false);
                         Swal.fire({
                             icon: 'error',
                             title: 'Timeout',
                             text: 'Proses generate terlalu lama.',
                         });
+                    } else {
+                        if (isMounted) setIsLoading(true);
                     }
                 }, POLLING_INTERVAL);
             } else {
-                console.log('Not generating, stopping loading...');
-                setIsLoading(false);
+                console.log('⏹️ Not generating, stopping loading...');
+                if (isMounted) setIsLoading(false);
             }
         };
 
         startPolling();
 
         return () => {
-            console.log('Cleaning up polling...');
+            console.log('🧹 Cleaning up polling...');
             isMounted = false;
             if (intervalId) clearInterval(intervalId);
         };
     }, [id, isGenerating, fetchEbook]);
 
+
     useEffect(() => {
-        if (ebook && editor && !editor.isDestroyed) {
+        if(ebook?.html_content != null){
+            editor.commands.setContent(ebook?.html_content);
+        } else if(ebook && ebook.html_content == null && editor && !editor.isDestroyed) {
             console.log('Updating editor content...');
             const htmlContent = transformEbookToHtml(ebook);
             editor.commands.setContent(htmlContent);
             setHasUnsavedChanges(false);
         }
     }, [ebook, editor]);
-
-    const handleDownloadDOCX = useCallback(async () => {
-        if (!ebook) {
-            Swal.fire('Error', 'Ebook tidak tersedia.', 'error');
-            return;
-        }
-
-        setIsDownloadingDocx(true);
-
-        try {
-            console.log('Creating DOCX document...');
-
-            const paragraphs = transformEbookToDocx(ebook);
-
-            const doc = new Document({
-                sections: [{
-                    properties: {},
-                    children: paragraphs,
-                }],
-            });
-
-            const blob = await Packer.toBlob(doc);
-
-            const filename = `${sanitizeFilename(ebook.title || 'dokumen')}.docx`;
-            saveAs(blob, filename);
-
-            console.log('DOCX file saved:', filename);
-
-            Swal.fire({
-                icon: 'success',
-                title: 'Berhasil!',
-                text: 'File DOCX berhasil diunduh.',
-                timer: 2000,
-                showConfirmButton: false,
-            });
-        } catch (err: any) {
-            console.error("Error creating DOCX:", err);
-            Swal.fire('Error', 'Gagal membuat file DOCX.', 'error');
-        } finally {
-            setIsDownloadingDocx(false);
-        }
-    }, [ebook]);
 
     const handleSaveChanges = useCallback(async () => {
         if (!editor || editor.isDestroyed || !ebook || !id) return;
@@ -407,9 +268,7 @@ export default function EbookViewerPage() {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
                 <LoadingSpinner isGenerating={isGenerating} />
-            </div>
         );
     }
 
@@ -420,24 +279,6 @@ export default function EbookViewerPage() {
                     <div className="text-red-500 text-6xl mb-4">⚠️</div>
                     <h2 className="text-2xl font-bold text-gray-800 mb-2">Terjadi Kesalahan</h2>
                     <p className="text-gray-600 mb-6">{error}</p>
-                    <button
-                        onClick={() => window.history.back()}
-                        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                    >
-                        Kembali
-                    </button>
-                </div>
-            </div>
-        );
-    }
-
-    if (!ebook) {
-        return (
-            <div className="min-h-screen flex items-center justify-center p-8 bg-gray-50">
-                <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
-                    <div className="text-gray-400 text-6xl mb-4">📚</div>
-                    <h2 className="text-2xl font-bold text-gray-800 mb-2">Ebook Tidak Ditemukan</h2>
-                    <p className="text-gray-600 mb-6">Ebook yang Anda cari tidak ditemukan.</p>
                     <button
                         onClick={() => window.history.back()}
                         className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
@@ -473,7 +314,7 @@ export default function EbookViewerPage() {
                             </button>
 
                             <button
-                                onClick={handleDownloadDOCX}
+                                // onClick={handleDownloadDOCX}
                                 disabled={isDownloadingDocx}
                                 className="px-5 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-wait transition-colors text-sm"
                             >

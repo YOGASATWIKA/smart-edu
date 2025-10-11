@@ -33,8 +33,8 @@ export interface Ebook {
     _id: string;
     title: string;
     parts: Part[];
-
     modul: string;
+    html_content?: string;
     created_at: string;
     updated_at?: string;
     delete_at?: string;
