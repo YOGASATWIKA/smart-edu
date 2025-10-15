@@ -24,11 +24,11 @@ const navItems: NavItem[] = [
     name: "Dashboard",
     path: "/",
   },
-    {
-        icon: <LuLightbulb />,
-        name: "Model",
-        path: "/model",
-    },
+    // {
+    //     icon: <LuLightbulb />,
+    //     name: "Model",
+    //     path: "/model",
+    // },
   {
     icon: <PencilIcon />,
     name: "Write",

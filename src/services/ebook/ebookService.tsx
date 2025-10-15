@@ -99,5 +99,80 @@ export const updateEbookById = async (id: string, payload: any): Promise<any> =>
 
     return await response.json();
 };
+export const downloadEbookPdf = async (id: string): Promise<void> => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/ebook/pdf/${id}`, {
+            method: "GET",
+        });
 
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => null);
+            throw new Error(errorData?.message || "Gagal mendownload file PDF.");
+        }
+
+        // Ambil nama file dari header
+        const filename =
+            response.headers.get("X-Filename") ||
+            getFilenameFromContentDisposition(response.headers.get("Content-Disposition")) ||
+            `ebook_${id}.pdf`;
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+
+    } catch (error: any) {
+        console.error("Error downloading PDF:", error);
+        Swal.fire({
+            icon: "error",
+            title: "Download Gagal",
+            text: error.message || "Terjadi kesalahan saat mendownload file.",
+        });
+    }
+};
+
+const getFilenameFromContentDisposition = (header: string | null): string | null => {
+    if (!header) return null;
+    const match = header.match(/filename="(.+)"/);
+    return match ? match[1] : null;
+};
+
+
+export const downloadEbookWord = async (id: string): Promise<void> => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/ebook/word/${id}`, {
+            method: "GET",
+        });
+
+        if (!response.ok) {
+            throw new Error("Gagal mendownload file Word.");
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `ebook_${id}.docx`;
+
+        document.body.appendChild(link);
+        link.click();
+
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error("Error downloading Word:", error);
+        Swal.fire({
+            icon: "error",
+            title: "Download Gagal",
+            text: "Terjadi kesalahan saat mendownload file Word.",
+        });
+    }
+};
 

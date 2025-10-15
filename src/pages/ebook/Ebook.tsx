@@ -5,7 +5,7 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import TextAlign from '@tiptap/extension-text-align';
-import {Ebook, getEbookByModuleId, updateEbookById} from '../../services/ebook/ebookService';
+import {Ebook, getEbookByModuleId, updateEbookById, downloadEbookPdf, downloadEbookWord} from '../../services/ebook/ebookService';
 import { LoadingSpinner } from '../../components/loadingSpinner';
 import { TiptapToolbar } from '../../components/ui/ebook/TipTapToolbar';
 
@@ -63,12 +63,10 @@ export default function EbookViewerPage() {
     const [ebook, setEbook] = useState<Ebook | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [isDownloadingDocx] = useState(false);
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
-
+    const [isInitializing, setIsInitializing] = useState(true);
     useEffect(() => {
-        console.log('=== EbookViewerPage Mounted ===');
         console.log('Module ID:', id);
         console.log('Is Generating:', isGenerating);
     }, []);
@@ -203,15 +201,26 @@ export default function EbookViewerPage() {
 
 
     useEffect(() => {
-        if(ebook?.html_content != null){
-            editor.commands.setContent(ebook?.html_content);
-        } else if(ebook && ebook.html_content == null && editor && !editor.isDestroyed) {
-            console.log('Updating editor content...');
+        if (!editor || !ebook) return;
+
+        setIsInitializing(true);
+
+        if (ebook.html_content != null) {
+            editor.commands.setContent(ebook.html_content);
+        } else if (ebook.html_content == null) {
             const htmlContent = transformEbookToHtml(ebook);
             editor.commands.setContent(htmlContent);
-            setHasUnsavedChanges(false);
         }
+
+        setHasUnsavedChanges(false);
+
+        const timeout = setTimeout(() => {
+            setIsInitializing(false);
+        }, 500);
+
+        return () => clearTimeout(timeout);
     }, [ebook, editor]);
+
 
     const handleSaveChanges = useCallback(async () => {
         if (!editor || editor.isDestroyed || !ebook || !id) return;
@@ -312,13 +321,17 @@ export default function EbookViewerPage() {
                             >
                                 {isSaving ? 'Menyimpan...' : 'Simpan Perubahan'}
                             </button>
-
                             <button
-                                // onClick={handleDownloadDOCX}
-                                disabled={isDownloadingDocx}
-                                className="px-5 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-wait transition-colors text-sm"
+                                onClick={() => downloadEbookPdf(id)}
+                                className="px-5 py-2 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 transition-colors text-sm"
                             >
-                                {isDownloadingDocx ? 'Membuat DOCX...' : 'Download DOCX'}
+                                Download PDF
+                            </button>
+                            <button
+                                onClick={() => downloadEbookWord(id)}
+                                className="px-5 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-colors text-sm"
+                            >
+                                Download Word
                             </button>
                         </div>
                     </div>
