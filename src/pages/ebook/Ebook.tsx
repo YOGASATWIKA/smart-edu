@@ -5,55 +5,13 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import TextAlign from '@tiptap/extension-text-align';
-import {Ebook, getEbookByModuleId, updateEbookById, downloadEbookPdf, downloadEbookWord} from '../../services/ebook/ebookService';
+import {Ebook, getEbookByModuleId, updateEbookById, downloadEbookWord} from '../../services/ebook/ebookService';
 import { LoadingSpinner } from '../../components/loadingSpinner';
 import { TiptapToolbar } from '../../components/ui/ebook/TipTapToolbar';
 
 
 const POLLING_INTERVAL = 10000;
 const MAX_POLLING_ATTEMPTS = 144;
-
-const transformEbookToHtml = (ebook: Ebook): string => {
-    try {
-        let htmlContent = `<h1>${ebook.title || 'Untitled'}</h1>`;
-
-        if (!ebook.parts || !Array.isArray(ebook.parts)) {
-            return htmlContent + '<p>Konten tidak tersedia</p>';
-        }
-
-        ebook.parts.forEach((part, partIndex) => {
-            htmlContent += `<h2>Bab ${partIndex + 1}: ${part.subject || 'Tanpa Judul'}</h2>`;
-
-            if (!part.chapters || !Array.isArray(part.chapters)) return;
-
-            part.chapters.forEach((chapter, chapterIndex) => {
-                htmlContent += `<h3>${partIndex + 1}.${chapterIndex + 1} ${chapter.title || 'Tanpa Judul'}</h3>`;
-
-                if (!chapter.materials || !Array.isArray(chapter.materials)) return;
-
-                chapter.materials.forEach((material) => {
-                    htmlContent += `<h4>${material.title || 'Tanpa Judul'}</h4>`;
-
-                    if (material.short) {
-                        htmlContent += `<p><em>"${material.short}"</em></p>`;
-                    }
-
-                    if (!material.details || !Array.isArray(material.details)) return;
-
-                    material.details.forEach((detail) => {
-                        if (detail.content) htmlContent += `<p>${detail.content}</p>`;
-                        if (detail.expanded) htmlContent += `<p>${detail.expanded}</p>`;
-                    });
-                });
-            });
-        });
-
-        return htmlContent;
-    } catch (error) {
-        console.error('Error transforming ebook:', error);
-        return '<p>Error memuat konten ebook.</p>';
-    }
-};
 
 export default function EbookViewerPage() {
     const location = useLocation();
@@ -65,11 +23,7 @@ export default function EbookViewerPage() {
     const [error, setError] = useState<string | null>(null);
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
-    const [isInitializing, setIsInitializing] = useState(true);
-    useEffect(() => {
-        console.log('Module ID:', id);
-        console.log('Is Generating:', isGenerating);
-    }, []);
+    const [, setIsInitializing] = useState(true);
 
     const editor = useEditor({
         extensions: [
@@ -90,19 +44,15 @@ export default function EbookViewerPage() {
 
     const fetchEbook = useCallback(async () => {
         if (!id) {
-            console.error('No module ID provided');
             return false;
         }
 
         try {
-            console.log('Fetching ebook with ID:', id);
             const data = await getEbookByModuleId(id);
-            console.log('Ebook data received:', data);
             setEbook(data);
             setError(null);
             return true;
         } catch (err: any) {
-            console.error('Error fetching ebook:', err);
             const errorMessage = err?.message || 'Terjadi kesalahan';
 
             if (!errorMessage.toLowerCase().includes("tidak ditemukan")) {
@@ -114,10 +64,8 @@ export default function EbookViewerPage() {
     }, [id]);
 
     useEffect(() => {
-        console.log('📡 Polling effect triggered');
 
         if (!id) {
-            console.error('❌ No ID, showing error');
             setIsLoading(false);
             Swal.fire({
                 icon: 'error',
@@ -133,10 +81,7 @@ export default function EbookViewerPage() {
         const poll = async () => {
             if (!isMounted) return false;
 
-            console.log('🔄 Polling fetch...');
             const success = await fetchEbook();
-
-            // Jika ebook belum tersedia, pastikan loading tetap true
             if (!success && isMounted) {
                 setIsLoading(true);
             }
@@ -146,33 +91,27 @@ export default function EbookViewerPage() {
 
         const startPolling = async () => {
             let attempts = 0;
-            setIsLoading(true); // ⬅️ Set true dari awal
+            setIsLoading(true);
 
-            console.log('🚀 Starting initial fetch...');
             const initialSuccess = await poll();
 
             if (initialSuccess) {
-                console.log('✅ Initial fetch successful');
                 if (isMounted) setIsLoading(false);
                 return;
             }
 
             if (isGenerating && isMounted) {
-                console.log('⏱️ Starting polling interval...');
                 intervalId = setInterval(async () => {
                     if (!isMounted) return;
 
                     attempts++;
-                    console.log(`Attempt ${attempts}/${MAX_POLLING_ATTEMPTS}`);
 
                     const success = await poll();
 
                     if (success) {
-                        console.log('✅ Ebook ready, stopping polling...');
                         if (intervalId) clearInterval(intervalId);
                         if (isMounted) setIsLoading(false);
                     } else if (attempts >= MAX_POLLING_ATTEMPTS) {
-                        console.warn('⚠️ Max attempts reached, stopping polling...');
                         if (intervalId) clearInterval(intervalId);
                         if (isMounted) setIsLoading(false);
                         Swal.fire({
@@ -185,7 +124,6 @@ export default function EbookViewerPage() {
                     }
                 }, POLLING_INTERVAL);
             } else {
-                console.log('⏹️ Not generating, stopping loading...');
                 if (isMounted) setIsLoading(false);
             }
         };
@@ -193,7 +131,6 @@ export default function EbookViewerPage() {
         startPolling();
 
         return () => {
-            console.log('🧹 Cleaning up polling...');
             isMounted = false;
             if (intervalId) clearInterval(intervalId);
         };
@@ -207,9 +144,6 @@ export default function EbookViewerPage() {
 
         if (ebook.html_content != null) {
             editor.commands.setContent(ebook.html_content);
-        } else if (ebook.html_content == null) {
-            const htmlContent = transformEbookToHtml(ebook);
-            editor.commands.setContent(htmlContent);
         }
 
         setHasUnsavedChanges(false);
@@ -228,11 +162,8 @@ export default function EbookViewerPage() {
         setIsSaving(true);
 
         try {
-            // Ambil hasil dari editor
             const htmlContent = editor.getHTML();
             const jsonContent = editor.getJSON();
-
-            // Buat payload yang akan dikirim ke server
             const payload = {
                 title: ebook.title,
                 modul: ebook.modul,
@@ -241,13 +172,7 @@ export default function EbookViewerPage() {
                 json_content: jsonContent,
                 updated_at: new Date().toISOString(),
             };
-
-            console.log("=== UPDATE EBOOK ===");
-            console.log("Payload:", payload);
-
-            const result = await updateEbookById(id, payload);
-            console.log("Server response:", result);
-
+            await updateEbookById(id, payload);
             setHasUnsavedChanges(false);
 
             Swal.fire({
@@ -258,7 +183,6 @@ export default function EbookViewerPage() {
                 showConfirmButton: false,
             });
         } catch (err: any) {
-            console.error("Error updating ebook:", err);
             Swal.fire("Error", err.message || "Gagal menyimpan perubahan.", "error");
         } finally {
             setIsSaving(false);
@@ -272,8 +196,6 @@ export default function EbookViewerPage() {
             }
         };
     }, [editor]);
-
-    console.log('Rendering - Loading:', isLoading, 'Error:', error, 'Ebook:', !!ebook);
 
     if (isLoading) {
         return (
@@ -300,8 +222,7 @@ export default function EbookViewerPage() {
     }
 
     return (
-        <div className="min-h-screen">
-            <div className="sticky top-0 z-50">
+        <>
                 <div className="max-w-4xl mx-auto px-4 py-4">
                     <div className="flex flex-wrap items-center justify-between gap-4">
                         <div className="flex-1 min-w-0">
@@ -322,12 +243,6 @@ export default function EbookViewerPage() {
                                 {isSaving ? 'Menyimpan...' : 'Simpan Perubahan'}
                             </button>
                             <button
-                                onClick={() => downloadEbookPdf(id)}
-                                className="px-5 py-2 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 transition-colors text-sm"
-                            >
-                                Download PDF
-                            </button>
-                            <button
                                 onClick={() => downloadEbookWord(id)}
                                 className="px-5 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-colors text-sm"
                             >
@@ -336,22 +251,24 @@ export default function EbookViewerPage() {
                         </div>
                     </div>
                 </div>
-            </div>
 
-            {/* Content Area */}
-            <div className="py-6">
+            <div>
                 <div className="max-w-4xl mx-auto px-4">
-                    <div className="bg-white rounded-lg shadow-lg">
-                        {/* Toolbar */}
-                        <TiptapToolbar editor={editor} />
-
-                        {/* Editor Content */}
-                        <div className="border border-t-0 border-gray-300 rounded-b-lg bg-white">
-                            <EditorContent editor={editor} />
+                    <div className="overflow-hidden">
+                        <div className=" top-0 z-10">
+                            <TiptapToolbar editor={editor} />
                         </div>
+                        <hr className="border-t border-gray-400" />
+                        <div
+                            className="max-h-[70vh] overflow-y-auto scrollbar-thin
+             scrollbar-thumb-gray-600 scrollbar-track-gray-300  bg-gray-300 "
+                        >
+                            <EditorContent editor={editor} className="min-h-[400px] text-black dark:text-white" />
+                        </div>
+
                     </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 }

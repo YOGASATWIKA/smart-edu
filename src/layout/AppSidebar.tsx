@@ -9,7 +9,7 @@ import {
     PencilIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
-import {LuLightbulb} from "react-icons/lu";
+// import {LuLightbulb} from "react-icons/lu";
 
 type NavItem = {
   name: string;

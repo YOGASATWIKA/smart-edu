@@ -186,5 +186,5 @@ export default {
     },
   },
 
-  plugins: [require("@tailwindcss/forms"),require("autoprefixer"), require('@tailwindcss/typography'),],
+  plugins: [require("@tailwindcss/forms"),require("autoprefixer"), require('@tailwindcss/typography'),  require('tailwind-scrollbar'),],
 };
