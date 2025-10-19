@@ -1,4 +1,5 @@
 import Swal from "sweetalert2";
+import axios from "axios";
 
 export interface Detail {
     content: string;
@@ -132,3 +133,20 @@ export const downloadEbookWord = async (id: string): Promise<void> => {
     }
 };
 
+export const downloadEbookPdf = async (id: string) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/ebook/pdf/${id}`, {
+            responseType: "blob",
+        });
+
+        const blob = new Blob([response.data], { type: "application/pdf" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `ebook.pdf`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+    } catch (error) {
+        console.error("Gagal mendownload eBook:", error);
+        alert("Terjadi kesalahan saat mendownload eBook.");
+    }
+};

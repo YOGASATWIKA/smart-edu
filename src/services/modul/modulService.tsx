@@ -103,6 +103,29 @@ export const createBaseMateri = async (materiData: NewBaseMateriRequest): Promis
     return await response.json();
 };
 
+export const updateBaseMateri = async (modulId: string, baseMateri: NewBaseMateriRequest): Promise<any> => {
+    const endpoint = `${API_BASE_URL}/modul/base-materi/${modulId}`;
+
+    const requestBody = {
+        materi_pokok: baseMateri
+    };
+    const response = await fetch(endpoint, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody)
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({
+            message: `Gagal memperbarui outline. Status: ${response.status}`
+        }));
+        throw new Error(errorData.message || 'Terjadi kesalahan yang tidak diketahui.');
+    }
+    return await response.json();
+};
+
 export const generateOutlines = async (modulIds: string[], model: string): Promise<any> => {
     const response = await fetch(`${API_BASE_URL}/modul/outline/`, {
         method: 'POST',

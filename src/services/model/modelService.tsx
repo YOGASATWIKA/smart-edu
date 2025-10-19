@@ -1,25 +1,39 @@
+import axios from "axios";
+
 const API_BASE_URL = import.meta.env.VITE_PATH_API;
 
 export interface Model {
     _id: string;
     model: string;
-    promt: Promt;
-    type: string;
-    status: string;
+    description: string;
+    steps: Promt[];
+    variables: string[];
+    is_active: boolean;
     created_at: string;
     updated_at: string;
     deleted_at: string;
 }
 
-export interface Promt {
-    system_prompt: string;
-    user_prompts: string[];
+export interface CreateModel {
+    model: string;
+    description: string;
+    steps: Promt[];
+    variables: string[];
+    is_active: boolean
 }
 
-export const getModelOutline = async (type: string): Promise<Model[]> => {
-    let url = `${API_BASE_URL}/model/outline`;
-    url += `?type=${type}`;
-    const response = await fetch(url);
+export interface Promt {
+    role: string;
+    content: string;
+}
+
+export const createModel = async (data: CreateModel) => {
+    const response = await axios.post(`${API_BASE_URL}/model/`, data);
+    return response.data;
+};
+
+export const getModelOutline = async (): Promise<Model[]> => {
+    const response = await fetch(`${API_BASE_URL}/model/`);
     if (!response.ok) throw new Error('Gagal memuat daftar Model');
     const result = await response.json();
 
@@ -31,9 +45,9 @@ export const getModelOutline = async (type: string): Promise<Model[]> => {
     }
 };
 
-export const getModelOutlineDetail = async (id: string): Promise<string[]> => {
-    let url = `${API_BASE_URL}/model/outline`;
-    url += `?id=${id}`;
+export const getModelOutlineDetail = async (model: string): Promise<string[]> => {
+    let url = `${API_BASE_URL}/model/`;
+    url += `?model=${model}`;
     const response = await fetch(url);
     if (!response.ok) throw new Error('Gagal memuat daftar Model');
     const result = await response.json();

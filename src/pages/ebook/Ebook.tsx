@@ -5,9 +5,10 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import TextAlign from '@tiptap/extension-text-align';
-import {Ebook, getEbookByModuleId, updateEbookById, downloadEbookWord} from '../../services/ebook/ebookService';
+import {Ebook, getEbookByModuleId, updateEbookById, downloadEbookWord, downloadEbookPdf} from '../../services/ebook/ebookService';
 import { LoadingSpinner } from '../../components/loadingSpinner';
 import { TiptapToolbar } from '../../components/ui/ebook/TipTapToolbar';
+import {FileText} from "lucide-react";
 
 
 const POLLING_INTERVAL = 10000;
@@ -244,10 +245,18 @@ export default function EbookViewerPage() {
                             </button>
                             <button
                                 onClick={() => downloadEbookWord(id)}
-                                className="px-5 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-colors text-sm"
+                                className="flex items-center px-5 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-colors text-sm"
                             >
-                                Download Word
+                                <FileText size={16} /> Word
                             </button>
+
+                            <button
+                                onClick={() => downloadEbookPdf(id)}
+                                className="flex items-center px-5 py-2 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 transition-colors text-sm"
+                            >
+                                <FileText size={16} /> PDF
+                            </button>
+
                         </div>
                     </div>
                 </div>

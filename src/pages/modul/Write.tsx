@@ -250,7 +250,7 @@ export default function Write() {
         // Tidak set isLoading di sini agar tidak ada flicker saat refetch
         setError(null);
         try {
-            const [modules, models] = await Promise.all([getModulByState('MODUL'), getModelOutline('OUTLINE')]);
+            const [modules, models] = await Promise.all([getModulByState('MODUL'), getModelOutline()]);
             setModulList(modules);
             setModelList(models);
 
@@ -428,7 +428,7 @@ export default function Write() {
                                         type="button"
                                         onClick={handleGenerateEbook}
                                         disabled={isInitialLoading || isGeneratingOutline || isGeneratingEbook || !selectedModulId}
-                                        className="w-full rounded-lg bg-green-600 px-5 py-3 text-base font-semibold text-white shadow-md transition hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-300 disabled:bg-green-400 disabled:cursor-not-allowed dark:focus:ring-green-800"
+                                        className="w-full rounded-lg bg-teal-600 hover:bg-teal-700 px-5 py-3 text-base font-semibold text-white shadow-md transition focus:outline-none focus:ring-4 disabled:cursor-not-allowed"
                                     >
                                         {isGeneratingEbook ? 'Memulai Proses...' : 'Generate Ebook'}
                                     </button>

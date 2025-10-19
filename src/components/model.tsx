@@ -28,13 +28,12 @@ export default function ModelConfigModal({ isOpen, onClose, onSave, selectedModu
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // ... (useEffect dan fungsi lainnya tetap sama)
     useEffect(() => {
         if (isOpen) {
             const loadModels = async () => {
                 setIsLoadingModels(true);
                 try {
-                    const modelsData = await getModelOutline('OUTLINE');
+                    const modelsData = await getModelOutline();
                     const modelNames = modelsData.map((m: any) => m.model_name); // Sesuaikan jika struktur data berbeda
                     setAvailableModels(modelNames);
                     if (modelNames.length > 0) {
