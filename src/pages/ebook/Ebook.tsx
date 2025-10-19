@@ -1,94 +1,283 @@
-// src/pages/EbookViewerPage.tsx
-
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Ebook, getEbookById } from '../../services/ebook/ebookService';
+import Swal from "sweetalert2";
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Underline from '@tiptap/extension-underline';
+import TextAlign from '@tiptap/extension-text-align';
+import {Ebook, getEbookByModuleId, updateEbookById, downloadEbookWord, downloadEbookPdf} from '../../services/ebook/ebookService';
+import { LoadingSpinner } from '../../components/loadingSpinner';
+import { TiptapToolbar } from '../../components/ui/ebook/TipTapToolbar';
+import {FileText} from "lucide-react";
+
+
+const POLLING_INTERVAL = 10000;
+const MAX_POLLING_ATTEMPTS = 144;
 
 export default function EbookViewerPage() {
     const location = useLocation();
     const id = location.state?.moduleId;
+    const isGenerating = location.state?.isGenerating || false;
+
     const [ebook, setEbook] = useState<Ebook | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [, setIsInitializing] = useState(true);
+
+    const editor = useEditor({
+        extensions: [
+            StarterKit,
+            Underline,
+            TextAlign.configure({ types: ['heading', 'paragraph'] }),
+        ],
+        content: '<p>Memuat konten ebook...</p>',
+        editorProps: {
+            attributes: {
+                class: 'prose prose-lg max-w-none focus:outline-none p-4 min-h-[500px]',
+            },
+        },
+        onUpdate: () => {
+            setHasUnsavedChanges(true);
+        },
+    });
+
+    const fetchEbook = useCallback(async () => {
+        if (!id) {
+            return false;
+        }
+
+        try {
+            const data = await getEbookByModuleId(id);
+            setEbook(data);
+            setError(null);
+            return true;
+        } catch (err: any) {
+            const errorMessage = err?.message || 'Terjadi kesalahan';
+
+            if (!errorMessage.toLowerCase().includes("tidak ditemukan")) {
+                setError(errorMessage);
+            }
+
+            return false;
+        }
+    }, [id]);
 
     useEffect(() => {
+
         if (!id) {
             setIsLoading(false);
-            setError("ID Modul tidak ditemukan. Silakan kembali dan pilih modul.");
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'ID Modul tidak ditemukan.',
+            });
             return;
         }
-        const fetchEbook = async () => {
+
+        let intervalId: NodeJS.Timeout | null = null;
+        let isMounted = true;
+
+        const poll = async () => {
+            if (!isMounted) return false;
+
+            const success = await fetchEbook();
+            if (!success && isMounted) {
+                setIsLoading(true);
+            }
+
+            return success;
+        };
+
+        const startPolling = async () => {
+            let attempts = 0;
             setIsLoading(true);
-            setError(null);
-            try {
-                const data = await getEbookById(id);
-                setEbook(data);
-            } catch (err: any) {
-                setError(err.message);
-            } finally {
-                setIsLoading(false);
+
+            const initialSuccess = await poll();
+
+            if (initialSuccess) {
+                if (isMounted) setIsLoading(false);
+                return;
+            }
+
+            if (isGenerating && isMounted) {
+                intervalId = setInterval(async () => {
+                    if (!isMounted) return;
+
+                    attempts++;
+
+                    const success = await poll();
+
+                    if (success) {
+                        if (intervalId) clearInterval(intervalId);
+                        if (isMounted) setIsLoading(false);
+                    } else if (attempts >= MAX_POLLING_ATTEMPTS) {
+                        if (intervalId) clearInterval(intervalId);
+                        if (isMounted) setIsLoading(false);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Timeout',
+                            text: 'Proses generate terlalu lama.',
+                        });
+                    } else {
+                        if (isMounted) setIsLoading(true);
+                    }
+                }, POLLING_INTERVAL);
+            } else {
+                if (isMounted) setIsLoading(false);
             }
         };
 
-        fetchEbook();
-    }, [id]);
+        startPolling();
+
+        return () => {
+            isMounted = false;
+            if (intervalId) clearInterval(intervalId);
+        };
+    }, [id, isGenerating, fetchEbook]);
+
+
+    useEffect(() => {
+        if (!editor || !ebook) return;
+
+        setIsInitializing(true);
+
+        if (ebook.html_content != null) {
+            editor.commands.setContent(ebook.html_content);
+        }
+
+        setHasUnsavedChanges(false);
+
+        const timeout = setTimeout(() => {
+            setIsInitializing(false);
+        }, 500);
+
+        return () => clearTimeout(timeout);
+    }, [ebook, editor]);
+
+
+    const handleSaveChanges = useCallback(async () => {
+        if (!editor || editor.isDestroyed || !ebook || !id) return;
+
+        setIsSaving(true);
+
+        try {
+            const htmlContent = editor.getHTML();
+            const jsonContent = editor.getJSON();
+            const payload = {
+                title: ebook.title,
+                modul: ebook.modul,
+                parts: ebook.parts,
+                html_content: htmlContent,
+                json_content: jsonContent,
+                updated_at: new Date().toISOString(),
+            };
+            await updateEbookById(id, payload);
+            setHasUnsavedChanges(false);
+
+            Swal.fire({
+                icon: "success",
+                title: "Berhasil!",
+                text: "Perubahan berhasil disimpan ke server.",
+                timer: 2000,
+                showConfirmButton: false,
+            });
+        } catch (err: any) {
+            Swal.fire("Error", err.message || "Gagal menyimpan perubahan.", "error");
+        } finally {
+            setIsSaving(false);
+        }
+    }, [editor, ebook, id]);
+
+    useEffect(() => {
+        return () => {
+            if (editor && !editor.isDestroyed) {
+                editor.destroy();
+            }
+        };
+    }, [editor]);
 
     if (isLoading) {
-        return <div className="p-8 text-center">Memuat Ebook...</div>;
+        return (
+                <LoadingSpinner isGenerating={isGenerating} />
+        );
     }
 
     if (error) {
-        return <div className="p-8 text-center text-red-500">Error: {error}</div>;
-    }
-
-    if (!ebook) {
-        return <div className="p-8 text-center">Ebook tidak ditemukan.</div>;
+        return (
+            <div className="min-h-screen flex items-center justify-center p-8 bg-gray-50">
+                <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
+                    <div className="text-red-500 text-6xl mb-4">⚠️</div>
+                    <h2 className="text-2xl font-bold text-gray-800 mb-2">Terjadi Kesalahan</h2>
+                    <p className="text-gray-600 mb-6">{error}</p>
+                    <button
+                        onClick={() => window.history.back()}
+                        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    >
+                        Kembali
+                    </button>
+                </div>
+            </div>
+        );
     }
 
     return (
-        <div className="bg-gray-50 min-h-screen p-4 sm:p-8 dark:bg-gray-900">
-            <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-8">
-                {/* Judul Utama Ebook */}
-                <header className="text-center border-b pb-6 mb-8">
-                    <h1 className="text-4xl font-bold text-gray-900">{ebook.title}</h1>
-                </header>
+        <>
+                <div className="max-w-4xl mx-auto px-4 py-4">
+                    <div className="flex flex-wrap items-center justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                            {hasUnsavedChanges && (
+                                <div className="flex items-center gap-2 text-sm text-orange-600">
+                                    <span className="inline-block w-2 h-2 bg-orange-600 rounded-full animate-pulse"></span>
+                                    <span>Ada perubahan yang belum disimpan</span>
+                                </div>
+                            )}
+                        </div>
 
-                <main className="space-y-12">
-                    {/* Looping untuk setiap BAB (Part) */}
-                    {ebook.parts.map((part, partIndex) => (
-                        <section key={partIndex}>
-                            <h2 className="text-3xl font-semibold text-gray-800 border-l-4 border-blue-500 pl-4 mb-4">
-                                Bab {partIndex + 1}: {part.subject}
-                            </h2>
+                        <div className="flex flex-wrap items-center gap-3">
+                            <button
+                                onClick={handleSaveChanges}
+                                disabled={!hasUnsavedChanges || isSaving}
+                                className="px-5 py-2 bg-sky-600 text-white font-semibold rounded-lg shadow-md hover:bg-sky-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors text-sm"
+                            >
+                                {isSaving ? 'Menyimpan...' : 'Simpan Perubahan'}
+                            </button>
+                            <button
+                                onClick={() => downloadEbookWord(id)}
+                                className="flex items-center px-5 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-colors text-sm"
+                            >
+                                <FileText size={16} /> Word
+                            </button>
 
-                            {/* Looping untuk setiap SUB-BAB (Chapter) */}
-                            {part.chapters.map((chapter, chapterIndex) => (
-                                <article key={chapterIndex} className="mt-8 pl-6">
-                                    <h3 className="text-2xl font-semibold text-gray-700">
-                                        {partIndex + 1}.{chapterIndex + 1} {chapter.title}
-                                    </h3>
+                            <button
+                                onClick={() => downloadEbookPdf(id)}
+                                className="flex items-center px-5 py-2 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 transition-colors text-sm"
+                            >
+                                <FileText size={16} /> PDF
+                            </button>
 
-                                    {/* Looping untuk setiap MATERI (Material) */}
-                                    {chapter.materials.map((material, matIndex) => (
-                                        <div key={matIndex} className="mt-6 pl-4 border-l-2 border-gray-200">
-                                            <h4 className="text-xl font-medium text-gray-600">{material.title}</h4>
-                                            <p className="mt-2 text-gray-700 italic">"{material.short}"</p>
+                        </div>
+                    </div>
+                </div>
 
-                                            {/* Looping untuk setiap DETAIL (Detail) */}
-                                            {material.details.map((detail, detailIndex) =>(
-                                                <div key={detailIndex} className="mt-4 prose max-w-none">
-                                                    <p>{detail.content}</p>
-                                                    <p>{detail.expanded}</p>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    ))}
-                                </article>
-                            ))}
-                        </section>
-                    ))}
-                </main>
+            <div>
+                <div className="max-w-4xl mx-auto px-4">
+                    <div className="overflow-hidden">
+                        <div className=" top-0 z-10">
+                            <TiptapToolbar editor={editor} />
+                        </div>
+                        <hr className="border-t border-gray-400" />
+                        <div
+                            className="max-h-[70vh] overflow-y-auto scrollbar-thin
+             scrollbar-thumb-gray-600 scrollbar-track-gray-300  bg-gray-300 "
+                        >
+                            <EditorContent editor={editor} className="min-h-[400px] text-black dark:text-white" />
+                        </div>
+
+                    </div>
+                </div>
             </div>
-        </div>
+        </>
     );
 }

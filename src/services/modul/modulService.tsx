@@ -27,6 +27,10 @@ export interface ModulActivity {
     updated_at: string;
 }
 
+export interface UpdateOutline{
+    outline : Outline;
+}
+
 export interface Modul {
     _id: string;
     materi_pokok: MateriPokok;
@@ -65,7 +69,7 @@ export const getModulByState = async (state: string): Promise<Modul[]> => {
     }
 };
 
-export const getAllEbook = async (): Promise<Modul[]> => {
+export const getAllModul = async (): Promise<Modul[]> => {
     const response = await fetch(`${API_BASE_URL}/modul/ebook`);
 
     if (!response.ok) {
@@ -96,6 +100,29 @@ export const createBaseMateri = async (materiData: NewBaseMateriRequest): Promis
         throw new Error(errorBody.message || `HTTP error! Status: ${response.status}`);
     }
 
+    return await response.json();
+};
+
+export const updateBaseMateri = async (modulId: string, baseMateri: NewBaseMateriRequest): Promise<any> => {
+    const endpoint = `${API_BASE_URL}/modul/base-materi/${modulId}`;
+
+    const requestBody = {
+        materi_pokok: baseMateri
+    };
+    const response = await fetch(endpoint, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody)
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({
+            message: `Gagal memperbarui outline. Status: ${response.status}`
+        }));
+        throw new Error(errorData.message || 'Terjadi kesalahan yang tidak diketahui.');
+    }
     return await response.json();
 };
 
@@ -132,6 +159,29 @@ export const getModulById = async (id: string): Promise<Modul> => {
         console.error("Format data dari server tidak sesuai:", result);
         throw new Error("Format data dari server tidak sesuai.");
     }
+};
+
+export const updateModulOutline = async (modulId: string, updatedOutline: Outline): Promise<any> => {
+    const endpoint = `${API_BASE_URL}/modul/outline/${modulId}`;
+
+    const requestBody = {
+        outline: updatedOutline
+    };
+    const response = await fetch(endpoint, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody)
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({
+            message: `Gagal memperbarui outline. Status: ${response.status}`
+        }));
+        throw new Error(errorData.message || 'Terjadi kesalahan yang tidak diketahui.');
+    }
+    return await response.json();
 };
 
 export const getActivity = async (): Promise<ModulActivity[]> => {

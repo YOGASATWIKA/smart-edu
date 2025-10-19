@@ -3,26 +3,27 @@ import PageMeta from "../../components/common/PageMeta";
 import {Link} from "react-router";
 import {useEffect, useState} from "react";
 import RecentActivityList from '../../components/recentActivityList.tsx';
+import {getProfile, User} from "../../services/auth/authService.tsx";
 
 
 export default function SmartEdu() {
-    const [name, setName] = useState('Loading...');
+    const [name, setName] = useState('User');
     useEffect(() => {
         const fetchUserData = async () => {
+            const token = localStorage.getItem('authToken');
+
+            if (!token) {
+                console.error("Token tidak ditemukan, tidak bisa mengambil data user.");
+                return;
+            }
             try {
-                const userString = localStorage.getItem('user');
-                if (!userString) {
-                    console.error("Data 'user' tidak ditemukan di local storage.");
-                    return;
-                }
-                const userData = JSON.parse(userString);
-                if (userData && typeof userData === 'object' && userData.name) {
-                    setName(userData.name);
-                } else {
-                    console.error("Format data 'user' di local storage tidak sesuai, properti 'name' tidak ditemukan.", userData);
-                }
+                const userData: User = await getProfile(token);
+
+                const defaultName = "Pengguna Baru";
+
+                setName(userData.name ?? defaultName);
             } catch (error) {
-                console.error("Gagal mem-parsing data 'user' dari local storage:", error);
+                console.error("Gagal mengambil data profil:", error);
             }
         };
 
@@ -44,7 +45,7 @@ export default function SmartEdu() {
           <p className="mb-10 text-base text-gray-600 dark:text-gray-400 sm:text-lg">
             Siap untuk mengubah ide brilian Anda menjadi tulisan yang terstruktur? Mulailah dari sini.
           </p>
-            <Link to= "/modul"
+            <Link to= "/write"
                   className="mt-6 w-3 rounded-lg bg-blue-600 px-5 py-3 text-sm font-medium text-white transition group-hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-500 dark:group-hover:bg-blue-600"
             >
                 Buat Modul

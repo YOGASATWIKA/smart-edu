@@ -1,6 +1,6 @@
 import PageMeta from "../../components/common/PageMeta";
 import AuthLayout from "./AuthPageLayout";
-import SignInForm from "../../components/auth/SignInForm";
+import Login from "../../components/auth/login.tsx";
 
 export default function SignIn() {
   return (
@@ -10,7 +10,7 @@ export default function SignIn() {
         description="Sign in to access your dashboard."
       />
       <AuthLayout>
-        <SignInForm />
+        <Login />
       </AuthLayout>
     </>
   );

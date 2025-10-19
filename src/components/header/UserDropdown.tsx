@@ -1,32 +1,40 @@
 import { useState, useEffect } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { useNavigate } from 'react-router';
+import { getProfile, User } from '../../services/auth/authService';
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
-  const [name, setName] = useState('Loading...');
-  const [pictureUrl, setPictureUrl] = useState('../../../public/images/profile.jpg');
+  const [name, setName] = useState('User');
+  const [pictureUrl, setPictureUrl] = useState('../../../public/images/profile_default.jpg');
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-    const user = localStorage.getItem('user');
-      if (!user) {
-        console.error("tidak bisa mengambil data user.");
-        return;
-      }
-      try {
-          const userData = JSON.parse(user);
-          setName(userData.name);
-          setPictureUrl(userData.picture);
-      }catch (error){
-          console.error(" Data Tidak Ada", error);
-      }
-    };
-    fetchUserData();
-  }, []);
+    useEffect(() => {
+        const fetchUserData = async () => {
+            const token = localStorage.getItem('authToken');
 
-  // Fungsi logout (tidak berubah)
+            if (!token) {
+                console.error("Token tidak ditemukan, tidak bisa mengambil data user.");
+                return;
+            }
+            try {
+                const userData: User = await getProfile(token);
+
+                const defaultName = "Pengguna Baru";
+                const defaultPictureUrl = "../../../public/images/profile_default.jpg";
+
+                setName(userData.name ?? defaultName);
+                if (userData.picture == null){
+                    setPictureUrl(defaultPictureUrl);
+                }else setPictureUrl(userData.picture);
+            } catch (error) {
+                console.error("Gagal mengambil data profil:", error);
+            }
+        };
+
+        fetchUserData();
+    }, []);
+
   const handleLogout = () => {
     localStorage.removeItem('authToken');
     navigate('/signin');
@@ -47,7 +55,7 @@ export default function UserDropdown() {
           <img src={pictureUrl} alt="User" className="object-cover w-full h-full" />
         </span>
         <span className="block mr-1 font-medium text-theme-sm">{name}</span>
-        
+
         <svg
           className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${
             isOpen ? "rotate-180" : ""

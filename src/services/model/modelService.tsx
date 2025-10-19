@@ -1,17 +1,60 @@
+import axios from "axios";
+
 const API_BASE_URL = import.meta.env.VITE_PATH_API;
 
-interface Model {
-    id: string;
+export interface Model {
+    _id: string;
     model: string;
+    description: string;
+    steps: Promt[];
+    variables: string[];
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
+    deleted_at: string;
 }
 
-export const fetchModels = async (): Promise<string[]> => {
-    const response = await fetch(`${API_BASE_URL}/model`);
+export interface CreateModel {
+    model: string;
+    description: string;
+    steps: Promt[];
+    variables: string[];
+    is_active: boolean
+}
+
+export interface Promt {
+    role: string;
+    content: string;
+}
+
+export const createModel = async (data: CreateModel) => {
+    const response = await axios.post(`${API_BASE_URL}/model/`, data);
+    return response.data;
+};
+
+export const getModelOutline = async (): Promise<Model[]> => {
+    const response = await fetch(`${API_BASE_URL}/model/`);
     if (!response.ok) throw new Error('Gagal memuat daftar Model');
     const result = await response.json();
-    if (result?.data && Array.isArray(result.data)) {
-        const allModels = result.data.map((item: Model) => item.model);
-        return Array.from(new Set(allModels)) as string[];
+
+    if (result && Array.isArray(result.data)) {
+        return result.data;
+    } else {
+        console.error("Format data dari server tidak sesuai:", result);
+        return [];
     }
-    throw new Error('Format data model tidak sesuai');
+};
+
+export const getModelOutlineDetail = async (model: string): Promise<string[]> => {
+    let url = `${API_BASE_URL}/model/`;
+    url += `?model=${model}`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Gagal memuat daftar Model');
+    const result = await response.json();
+    if (result && Array.isArray(result.data)) {
+        return result.data;
+    } else {
+        console.error("Format data dari server tidak sesuai:", result);
+        return [];
+    }
 };

@@ -1,6 +1,6 @@
 import PageMeta from "../../components/common/PageMeta";
 import AuthLayout from "./AuthPageLayout";
-import SignUpForm from "../../components/auth/SignUpForm";
+import Register from "../../components/auth/register.tsx";
 
 export default function SignUp() {
   return (
@@ -10,7 +10,7 @@ export default function SignUp() {
         description="Create an account to get started."
       />
       <AuthLayout>
-        <SignUpForm />
+        <Register />
       </AuthLayout>
     </>
   );
