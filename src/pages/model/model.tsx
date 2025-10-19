@@ -85,7 +85,7 @@ return (
             />
         )}
 
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className=" bg-gray-50 dark:bg-gray-900">
             <main>
                 {isLoading ? (
                     <div className="text-center py-20 text-gray-500 dark:text-gray-400">

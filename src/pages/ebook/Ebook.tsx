@@ -244,14 +244,14 @@ export default function EbookViewerPage() {
                                 {isSaving ? 'Menyimpan...' : 'Simpan Perubahan'}
                             </button>
                             <button
-                                onClick={() => downloadEbookWord(id)}
+                                onClick={() => downloadEbookWord(ebook)}
                                 className="flex items-center px-5 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-colors text-sm"
                             >
                                 <FileText size={16} /> Word
                             </button>
 
                             <button
-                                onClick={() => downloadEbookPdf(id)}
+                                onClick={() => downloadEbookPdf(ebook)}
                                 className="flex items-center px-5 py-2 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 transition-colors text-sm"
                             >
                                 <FileText size={16} /> PDF

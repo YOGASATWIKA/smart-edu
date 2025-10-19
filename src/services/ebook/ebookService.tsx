@@ -101,9 +101,12 @@ export const updateEbookById = async (id: string, payload: any): Promise<any> =>
     return await response.json();
 };
 
-export const downloadEbookWord = async (id: string): Promise<void> => {
+export const downloadEbookWord = async (ebook: Ebook | null): Promise<void> => {
     try {
-        const response = await fetch(`${API_BASE_URL}/ebook/word/${id}`, {
+        if (ebook?.modul == null){
+            throw new Error("ebook tidak di temukan");
+        }
+        const response = await fetch(`${API_BASE_URL}/ebook/word/${ebook.modul}`, {
             method: "GET",
         });
 
@@ -116,7 +119,7 @@ export const downloadEbookWord = async (id: string): Promise<void> => {
 
         const link = document.createElement("a");
         link.href = url;
-        link.download = `ebook_${id}.docx`;
+        link.download = `${ebook.title}.docx`;
 
         document.body.appendChild(link);
         link.click();
@@ -133,16 +136,19 @@ export const downloadEbookWord = async (id: string): Promise<void> => {
     }
 };
 
-export const downloadEbookPdf = async (id: string) => {
+export const downloadEbookPdf = async (ebook: Ebook | null) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/ebook/pdf/${id}`, {
+        if (ebook?.modul == null){
+            throw new Error("ebook tidak di temukan");
+        }
+        const response = await axios.get(`${API_BASE_URL}/ebook/pdf/${ebook?.modul}`, {
             responseType: "blob",
         });
 
         const blob = new Blob([response.data], { type: "application/pdf" });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.download = `ebook.pdf`;
+        link.download = `${ebook.title}.pdf`;
         link.click();
         URL.revokeObjectURL(link.href);
     } catch (error) {
