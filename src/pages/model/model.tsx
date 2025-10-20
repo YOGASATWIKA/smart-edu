@@ -62,7 +62,7 @@ return (
 
         {isOpen && (
             <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-                <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl w-full max-w-2xl mx-4 p-6 relative">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-2xl mx-4 p-6 relative">
                     <button
                         onClick={() => setIsOpen(false)}
                         className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
@@ -97,7 +97,7 @@ return (
                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                         {models.map((model) => (
                             <ModelCard
-                                key={model._id}
+                                key={model.id}
                                 modelData={model}
                                 onViewPrompt={() => handleViewPrompt(model)}
                             />

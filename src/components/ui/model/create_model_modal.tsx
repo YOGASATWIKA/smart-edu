@@ -10,7 +10,6 @@ interface CreateModelModalProps {
 const CreateModelModal = ({ isOpen, onClose }: CreateModelModalProps) => {
     const titleId = useId();
 
-    // Efek untuk menutup modal saat 'Escape' ditekan
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === "Escape") {
@@ -27,12 +26,10 @@ const CreateModelModal = ({ isOpen, onClose }: CreateModelModalProps) => {
         };
     }, [isOpen, onClose]);
 
-    // Handle klik di luar (overlay)
     const handleOverlayClick = () => {
         onClose();
     };
 
-    // Mencegah klik di dalam modal ikut menutup
     const handleModalClick = (e: React.MouseEvent) => {
         e.stopPropagation();
     };
@@ -68,8 +65,6 @@ const CreateModelModal = ({ isOpen, onClose }: CreateModelModalProps) => {
                     Buat Model Baru
                 </h2>
                 <CreateModelForm />
-                {/* Anda mungkin ingin menambahkan prop onSuccess ke CreateModelForm
-                    untuk memanggil onClose() saat submit berhasil */}
             </div>
         </div>
     );

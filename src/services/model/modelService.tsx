@@ -3,7 +3,7 @@ import axios from "axios";
 const API_BASE_URL = import.meta.env.VITE_PATH_API;
 
 export interface Model {
-    _id: string;
+    id: string;
     model: string;
     description: string;
     steps: Promt[];
@@ -57,4 +57,24 @@ export const getModelOutlineDetail = async (model: string): Promise<string[]> =>
         console.error("Format data dari server tidak sesuai:", result);
         return [];
     }
+};
+
+export const updateModel = async (modulId: string, baseMateri: CreateModel): Promise<any> => {
+    const endpoint = `${API_BASE_URL}/model/${modulId}`;
+
+    const response = await fetch(endpoint, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(baseMateri)
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({
+            message: `Gagal memperbarui outline. Status: ${response.status}`
+        }));
+        throw new Error(errorData.message || 'Terjadi kesalahan yang tidak diketahui.');
+    }
+    return await response.json();
 };
