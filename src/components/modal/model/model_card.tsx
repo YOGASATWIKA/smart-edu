@@ -1,6 +1,6 @@
 import React from 'react';
-import { Model } from '../../../services/model/modelService';
-import StatusBadge from "../../status.tsx";
+import { Model } from '../../../services/model/modelService.tsx';
+import StatusBadge from "../status.tsx";
 
 interface ModelCardProps {
     modelData: Model;

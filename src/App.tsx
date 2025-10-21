@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
-// Page Imports
 import SignIn from "./pages/authPages/SignIn";
 import SignUp from "./pages/authPages/SignUp";
 import Home from "./pages/dashboard/Dashboard";
@@ -9,7 +8,6 @@ import Ebook from "./pages/ebook/Ebook";
 import Document from "./pages/ebook/Document";
 import Modul from "./pages/modul/Write";
 import Model from "./pages/model/model"
-// Layout & Component Imports
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import ProtectedRoute from "./components/common/ProtectedRoute";

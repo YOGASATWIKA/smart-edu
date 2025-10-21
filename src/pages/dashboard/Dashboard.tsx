@@ -2,7 +2,7 @@ import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import {Link} from "react-router";
 import {useEffect, useState} from "react";
-import RecentActivityList from '../../components/recentActivityList.tsx';
+import RecentActivityList from '../../components/modal/recentActivityList.tsx';
 import {getProfile, User} from "../../services/auth/authService.tsx";
 
 

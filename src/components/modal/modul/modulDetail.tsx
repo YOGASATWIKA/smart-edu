@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Modul } from '../services/modul/modulService';
+import { Modul } from '../../../services/modul/modulService.tsx';
 
 
 interface ModalProps {

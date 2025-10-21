@@ -1,6 +1,6 @@
 import { useState, FormEvent, useEffect } from 'react';
-import { getModelByStatus } from '../services/model/modelService';
-import type { Modul } from '../services/modul/modulService';
+import { getModelByStatus } from '../../../services/model/modelService.tsx';
+import type { Modul } from '../../../services/modul/modulService.tsx';
 import Swal from "sweetalert2";
 
 export interface ModelConfigPayload {

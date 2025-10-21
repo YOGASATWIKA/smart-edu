@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { getModelByStatus, getModelOutlineDetail, Model } from '../../services/model/modelService.tsx';
-import ModelCard from "../../components/ui/model/model_card.tsx";
+import ModelCard from "../../components/modal/model/model_card.tsx";
 import PageBreadcrumb from '../../components/common/PageBreadCrumb.tsx';
 import PageMeta from '../../components/common/PageMeta.tsx';
 import { PlusCircleIcon } from "lucide-react";
-import CreateModelForm from "../../components/ui/model/create_model.tsx";
-import ModelDetailModal from "../../components/ui/model/model_detail_modal.tsx";
+import CreateModelForm from "../../components/modal/model/create_model.tsx";
+import ModelDetailModal from "../../components/modal/model/model_detail_modal.tsx";
 
 const ModelListPage: React.FC = () => {
     const [models, setModels] = useState<Model[]>([]);

@@ -56,7 +56,6 @@ export const googleLoginService = async (googleAccessToken: string): Promise<Aut
             throw new Error('No token received from server.');
         }
 
-        // Backend seharusnya juga mengembalikan data user, kita gunakan itu.
         return backendResponse.data;
 
     } catch (error: any) {
@@ -75,7 +74,7 @@ export const getProfile = async (token: string): Promise<User> => {
 
     if (!response.ok) {
         if (response.status === 401 || response.status === 403) {
-            throw new Error('Sesi tidak valid atau telah berakhir. Silakan login ulang.');
+            throw new Error('Session Expired Please Login');
         }
         throw new Error(`HTTP error! status: ${response.status}`);
     }

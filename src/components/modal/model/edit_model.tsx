@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { updateModel, Promt, Model } from "../../../services/model/modelService";
+import { updateModel, Promt, Model } from "../../../services/model/modelService.tsx";
 import Swal from "sweetalert2";
 import { Plus, Trash } from "lucide-react";
 
@@ -58,16 +58,17 @@ const EditModelForm: React.FC<EditModelFormProps> = ({ modelData, onSuccess, onC
                 />
             </div>
 
-            {/* Deskripsi */}
             <div>
                 <label className="block text-sm font-medium mb-1">Deskripsi</label>
                 <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-800  dark:border-gray-700"
+                    className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-800 dark:border-gray-700"
                     rows={1}
+                    required
                 />
             </div>
+
 
             {/* Steps */}
             <div>
@@ -93,6 +94,7 @@ const EditModelForm: React.FC<EditModelFormProps> = ({ modelData, onSuccess, onC
                             onChange={(e) => handleChangeStep(i, "content", e.target.value)}
                             className="w-full border rounded px-3 py-2 bg-white dark:bg-gray-800  dark:border-gray-700"
                             rows={10}
+                            required
                         />
                     </div>
                 ))}
@@ -105,7 +107,6 @@ const EditModelForm: React.FC<EditModelFormProps> = ({ modelData, onSuccess, onC
                 </button>
             </div>
 
-            {/* Status Aktif */}
             <div className="flex items-center gap-2">
                 <input id="isActive" type="checkbox" checked={isActive} onChange={() => setIsActive(!isActive)} />
                 <label htmlFor="isActive" className="text-sm">Aktif</label>
@@ -113,7 +114,7 @@ const EditModelForm: React.FC<EditModelFormProps> = ({ modelData, onSuccess, onC
 
             {/* Tombol Aksi */}
             <div className="flex justify-end gap-2">
-                <button type="button" onClick={onCancel} className="px-4 py-2 text-sm bg-gray-300 rounded-lg">Batal</button>
+                <button type="button" onClick={onCancel} className="px-4 py-2 text-sm bg-gray-600 hover:bg-gray-400 rounded-lg">Batal</button>
                 <button
                     type="submit"
                     disabled={isLoading}

@@ -88,10 +88,10 @@
 
 
 
-import { Modul } from '../services/modul/modulService.tsx';
+import { Modul } from '../../../services/modul/modulService.tsx';
 import { useNavigate } from 'react-router-dom';
 import {Trash} from "lucide-react";
-import { deleteModulById } from '../services/modul/modulService.tsx';
+import { deleteModulById } from '../../../services/modul/modulService.tsx';
 import Swal from "sweetalert2";
 
 interface ModulCardProps {

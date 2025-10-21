@@ -190,8 +190,8 @@
 
 
 import { useState, useEffect } from 'react';
-import { getModulById, Modul, Outline } from '../services/modul/modulService';
-import { AutoResizeTextarea } from './autoResizeTextArea.tsx';
+import { getModulById, Modul, Outline } from '../../services/modul/modulService.tsx';
+import { AutoResizeTextarea } from './modul/autoResizeTextArea.tsx';
 
 interface EditableOutlineDisplayProps {
     modulId: string;

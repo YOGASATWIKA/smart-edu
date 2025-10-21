@@ -1,5 +1,5 @@
 import {useEffect, useRef, useId, useState} from "react";
-import {Model} from "../../../services/model/modelService";
+import {Model} from "../../../services/model/modelService.tsx";
 import EditModelForm from "./edit_model.tsx";
 
 interface ModelDetailModalProps {

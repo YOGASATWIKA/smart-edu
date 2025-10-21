@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { createModel, Promt } from "../../../services/model/modelService";
+import { createModel, Promt } from "../../../services/model/modelService.tsx";
 import Swal from "sweetalert2";
 import { Plus, Trash } from "lucide-react";
 

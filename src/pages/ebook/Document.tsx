@@ -1,5 +1,5 @@
 import { useState, useEffect} from 'react';
-import ModulCard from '../../components/modulCard.tsx';
+import ModulCard from '../../components/modal/modul/modulCard.tsx';
 import PageBreadcrumb from '../../components/common/PageBreadCrumb.tsx';
 import PageMeta from '../../components/common/PageMeta.tsx';
 import {getModulByState, Modul } from '../../services/modul/modulService.tsx';

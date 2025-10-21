@@ -6,8 +6,8 @@ import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import TextAlign from '@tiptap/extension-text-align';
 import {Ebook, getEbookByModuleId, updateEbookById, downloadEbookWord, downloadEbookPdf} from '../../services/ebook/ebookService';
-import { LoadingSpinner } from '../../components/loadingSpinner';
-import { TiptapToolbar } from '../../components/ui/ebook/TipTapToolbar';
+import { LoadingSpinner } from '../../components/modal/ebook/loadingSpinner.tsx';
+import { TiptapToolbar } from '../../components/modal/ebook/TipTapToolbar';
 import {FileText} from "lucide-react";
 
 

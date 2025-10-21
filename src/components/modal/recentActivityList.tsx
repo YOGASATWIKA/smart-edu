@@ -1,8 +1,8 @@
 // src/components/ActivityTimeline.tsx
 
 import {useState, useEffect, JSX} from 'react';
-import { getActivity } from '../services/modul/modulService';
-import { ModulActivity } from '../services/modul/modulService'
+import { getActivity } from '../../services/modul/modulService.tsx';
+import { ModulActivity } from '../../services/modul/modulService.tsx'
 
 // Helper function untuk memformat tanggal
 const formatDate = (dateString: string) => {

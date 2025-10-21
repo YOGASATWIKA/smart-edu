@@ -1,7 +1,7 @@
 // src/components/AddMateriModal.tsx
 
 import { useState, FormEvent } from 'react';
-import { NewBaseMateriRequest, createBaseMateri } from '../services/modul/modulService.tsx';
+import { NewBaseMateriRequest, createBaseMateri } from '../../../services/modul/modulService.tsx';
 import Swal from "sweetalert2";
 
 interface AddMateriModalProps {
