@@ -46,6 +46,7 @@ export default function ModulDetail({ materi, isLoading, error, onClose, onUpdat
             alert("Gagal menyimpan perubahan.");
         } finally {
             setIsSaving(false);
+            window.location.reload();
         }
     };
 

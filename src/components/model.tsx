@@ -1,5 +1,5 @@
 import { useState, FormEvent, useEffect } from 'react';
-import { getModelOutline } from '../services/model/modelService';
+import { getModelByStatus } from '../services/model/modelService';
 import type { Modul } from '../services/modul/modulService';
 import Swal from "sweetalert2";
 
@@ -33,14 +33,13 @@ export default function ModelConfigModal({ isOpen, onClose, onSave, selectedModu
             const loadModels = async () => {
                 setIsLoadingModels(true);
                 try {
-                    const modelsData = await getModelOutline();
-                    const modelNames = modelsData.map((m: any) => m.model_name); // Sesuaikan jika struktur data berbeda
+                    const modelsData = await getModelByStatus('ALL');
+                    const modelNames = modelsData.map((m: any) => m.model_name);
                     setAvailableModels(modelNames);
                     if (modelNames.length > 0) {
                         setSelectedModel(modelNames[0]);
                     }
                 } catch (err) {
-                    // Anda bisa menampilkan error ke user di sini jika diperlukan
                     console.error('Gagal memuat model:', err);
                     setError('Gagal memuat daftar model dari server.');
                 }
@@ -120,6 +119,7 @@ export default function ModelConfigModal({ isOpen, onClose, onSave, selectedModu
             console.error(errorMessage, ':', err.message);
         } finally {
             setIsSubmitting(false);
+            window.location.reload();
         }
     };
 

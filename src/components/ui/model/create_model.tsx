@@ -71,6 +71,7 @@ const CreateModelForm: React.FC = () => {
             );
         } finally {
             setIsLoading(false);
+            window.location.reload();
         }
     };
 

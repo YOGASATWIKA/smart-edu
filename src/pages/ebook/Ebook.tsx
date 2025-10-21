@@ -187,6 +187,7 @@ export default function EbookViewerPage() {
             Swal.fire("Error", err.message || "Gagal menyimpan perubahan.", "error");
         } finally {
             setIsSaving(false);
+            window.location.reload();
         }
     }, [editor, ebook, id]);
 

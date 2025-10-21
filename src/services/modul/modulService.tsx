@@ -21,7 +21,7 @@ export interface Outline {
 export interface ModulActivity {
     _id: string;
     nama_jabatan: string;
-    status: string;
+    is_active: boolean;
     state: string;
     created_at: string;
     updated_at: string;
@@ -35,7 +35,7 @@ export interface Modul {
     _id: string;
     materi_pokok: MateriPokok;
     outline: Outline;
-    status: string;
+    is_active: boolean;
     state: string;
     created_at: string;
     updated_at: string;
@@ -126,6 +126,7 @@ export const updateBaseMateri = async (modulId: string, baseMateri: NewBaseMater
     return await response.json();
 };
 
+
 export const generateOutlines = async (modulIds: string[], model: string): Promise<any> => {
     const response = await fetch(`${API_BASE_URL}/modul/outline/`, {
         method: 'POST',
@@ -178,6 +179,22 @@ export const updateModulOutline = async (modulId: string, updatedOutline: Outlin
     if (!response.ok) {
         const errorData = await response.json().catch(() => ({
             message: `Gagal memperbarui outline. Status: ${response.status}`
+        }));
+        throw new Error(errorData.message || 'Terjadi kesalahan yang tidak diketahui.');
+    }
+    return await response.json();
+};
+
+export const deleteModulById = async (modulId: string): Promise<any> => {
+    const endpoint = `${API_BASE_URL}/modul/${modulId}`;
+
+    const response = await fetch(endpoint, {
+        method: 'DELETE',
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({
+            message: `Gagal DELETE outline. Status: ${response.status}`
         }));
         throw new Error(errorData.message || 'Terjadi kesalahan yang tidak diketahui.');
     }

@@ -94,6 +94,7 @@ const MateriPokokModal: React.FC<MateriPokokModalProps> = ({
             console.error('Terjadi kesalahan saat POST data:', error);
         } finally {
             setIsSubmitting(false);
+            window.location.reload();
         }
     };
 

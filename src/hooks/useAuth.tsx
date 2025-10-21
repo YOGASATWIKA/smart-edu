@@ -23,6 +23,7 @@ export const useAuth = () => {
             setError(err.message || 'Gagal masuk. Silakan coba lagi nanti.');
         } finally {
             setIsLoading(false);
+
         }
     };
 

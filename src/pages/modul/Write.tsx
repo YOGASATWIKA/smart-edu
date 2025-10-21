@@ -230,7 +230,7 @@ import AddMateriModal from '../../components/modul';
 import EditableOutlineDisplay from '../../components/updateModulOutline';
 import { getModulByState, Modul, generateOutlines, updateModulOutline, Outline } from '../../services/modul/modulService';
 import { generateEbooks } from '../../services/ebook/ebookService';
-import { getModelOutline, Model } from '../../services/model/modelService';
+import { getModelByStatus, Model } from '../../services/model/modelService';
 
 export default function Write() {
     // --- STATE MANAGEMENT ---
@@ -250,7 +250,7 @@ export default function Write() {
         // Tidak set isLoading di sini agar tidak ada flicker saat refetch
         setError(null);
         try {
-            const [modules, models] = await Promise.all([getModulByState('MODUL'), getModelOutline()]);
+            const [modules, models] = await Promise.all([getModulByState('MODUL'), getModelByStatus('ACTIVE')]);
             setModulList(modules);
             setModelList(models);
 

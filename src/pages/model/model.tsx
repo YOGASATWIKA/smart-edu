@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getModelOutline, getModelOutlineDetail, Model } from '../../services/model/modelService.tsx';
+import { getModelByStatus, getModelOutlineDetail, Model } from '../../services/model/modelService.tsx';
 import ModelCard from "../../components/ui/model/model_card.tsx";
 import PageBreadcrumb from '../../components/common/PageBreadCrumb.tsx';
 import PageMeta from '../../components/common/PageMeta.tsx';
@@ -19,7 +19,7 @@ useEffect(() => {
     const fetchModels = async () => {
         try {
             setIsLoading(true);
-            const data = await getModelOutline();
+            const data = await getModelByStatus('ALL');
             setModels(data);
             setError(null);
         } catch (err) {

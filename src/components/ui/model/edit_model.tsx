@@ -38,6 +38,7 @@ const EditModelForm: React.FC<EditModelFormProps> = ({ modelData, onSuccess, onC
             Swal.fire("Gagal", err.response?.data?.message || "Terjadi kesalahan saat update model.", "error");
         } finally {
             setIsLoading(false);
+            window.location.reload();
         }
     };
 

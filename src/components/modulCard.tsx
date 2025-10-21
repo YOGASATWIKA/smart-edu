@@ -90,6 +90,9 @@
 
 import { Modul } from '../services/modul/modulService.tsx';
 import { useNavigate } from 'react-router-dom';
+import {Trash} from "lucide-react";
+import { deleteModulById } from '../services/modul/modulService.tsx';
+import Swal from "sweetalert2";
 
 interface ModulCardProps {
     modul: Modul;
@@ -137,6 +140,30 @@ export default function ModulCard({ modul }: ModulCardProps) {
     };
     const actionButton = actionButtonConfig[modul.state as keyof typeof actionButtonConfig];
 
+    const handleDelete = async (id: string) => {
+        const result = await Swal.fire({
+            title: 'Yakin ingin menghapus modul ini?',
+            text: 'Tindakan ini tidak dapat dibatalkan!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal',
+        });
+
+        if (result.isConfirmed) {
+            await deleteModulById(id);
+            Swal.fire({
+                title: 'Dihapus!',
+                text: 'Modul berhasil dihapus.',
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false,
+            });
+            window.location.reload();
+        }
+    };
 
     return (
         <div
@@ -151,6 +178,13 @@ export default function ModulCard({ modul }: ModulCardProps) {
                     <h3 className="pr-4 text-lg font-bold text-gray-900 dark:text-white leading-tight">
                         {modul.materi_pokok.nama_jabatan}
                     </h3>
+                    <button
+                        type="button"
+                        onClick={() => handleDelete(modul._id)}
+                        className="text-red-500 hover:text-red-700"
+                    >
+                        <Trash size={16} />
+                    </button>
                 </div>
 
                 <span

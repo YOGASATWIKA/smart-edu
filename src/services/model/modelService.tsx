@@ -32,8 +32,10 @@ export const createModel = async (data: CreateModel) => {
     return response.data;
 };
 
-export const getModelOutline = async (): Promise<Model[]> => {
-    const response = await fetch(`${API_BASE_URL}/model/`);
+export const getModelByStatus = async (status: string): Promise<Model[]> => {
+    let url = `${API_BASE_URL}/model/`;
+    url += `?status=${status}`;
+    const response = await fetch(url);
     if (!response.ok) throw new Error('Gagal memuat daftar Model');
     const result = await response.json();
 
