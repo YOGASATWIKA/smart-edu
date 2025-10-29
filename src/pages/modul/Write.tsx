@@ -83,6 +83,11 @@ export default function Write() {
             (selectedModul?.outline?.list_materi?.length ?? 0) > 0,
         [selectedModul]
     );
+    useEffect(() => {
+        if (newlyCreatedModulId) {
+            fetchData();
+        }
+    }, [newlyCreatedModulId]);
 
     const handleGenerateOutline = useCallback(async () => {
         if (!selectedModulId || !selectedModel) return;
@@ -248,12 +253,13 @@ export default function Write() {
                 onClose={() => setIsAddMateriModalOpen(false)}
                 onSuccess={(newModul) => {
                     if (newModul?._id) {
-                        setNewlyCreatedModulId(newModul._id);
+                        setModulList(prev => [newModul, ...prev]);
+                        setSelectedModulId(newModul._id);
                     }
                     setIsAddMateriModalOpen(false);
-                    fetchData();
                 }}
             />
+
         </>
     );
 }

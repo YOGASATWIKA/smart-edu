@@ -50,6 +50,16 @@ const CreateModelForm: React.FC = () => {
             return;
         }
 
+        if (!steps || steps.length === 0 || steps.some(step => !step.content?.trim())) {
+            Swal.fire("Peringatan", "Promt tidak boleh kosong!", "warning");
+            return;
+        }
+
+        if (!steps || steps.length === 1 || steps.some(step => !step.content?.trim())) {
+            Swal.fire("Peringatan", "Promt harus memiliki role system dan human!", "warning");
+            return;
+        }
+
         const payload = {
             model,
             description,
