@@ -69,23 +69,6 @@ export const getModulByState = async (state: string): Promise<Modul[]> => {
     }
 };
 
-export const getAllModul = async (): Promise<Modul[]> => {
-    const response = await fetch(`${API_BASE_URL}/modul/ebook`);
-
-    if (!response.ok) {
-        throw new Error(`Gagal mengambil data modul: Status ${response.status}`);
-    }
-
-    const result = await response.json();
-
-    if (result && Array.isArray(result.data)) {
-        return result.data;
-    } else {
-        console.error("Format data dari server tidak sesuai:", result);
-        return [];
-    }
-};
-
 export const createBaseMateri = async (materiData: NewBaseMateriRequest): Promise<any> => {
     const response = await fetch(`${API_BASE_URL}/modul/base-materi`, {
         method: 'POST',
@@ -102,30 +85,6 @@ export const createBaseMateri = async (materiData: NewBaseMateriRequest): Promis
 
     return await response.json();
 };
-
-export const updateBaseMateri = async (modulId: string, baseMateri: NewBaseMateriRequest): Promise<any> => {
-    const endpoint = `${API_BASE_URL}/modul/base-materi/${modulId}`;
-
-    const requestBody = {
-        materi_pokok: baseMateri
-    };
-    const response = await fetch(endpoint, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody)
-    });
-
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({
-            message: `Gagal memperbarui outline. Status: ${response.status}`
-        }));
-        throw new Error(errorData.message || 'Terjadi kesalahan yang tidak diketahui.');
-    }
-    return await response.json();
-};
-
 
 export const generateOutlines = async (modulIds: string[], model: string): Promise<any> => {
     const response = await fetch(`${API_BASE_URL}/modul/outline/`, {

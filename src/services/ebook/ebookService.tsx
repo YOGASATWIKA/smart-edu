@@ -22,7 +22,6 @@ export interface Chapter {
     reflections: string[];
 }
 
-// Bab
 export interface Part {
     subject: string;
     introductions: string[];

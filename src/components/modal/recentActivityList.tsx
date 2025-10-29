@@ -1,13 +1,8 @@
-// src/components/ActivityTimeline.tsx
-
 import {useState, useEffect, JSX} from 'react';
 import { getActivity } from '../../services/modul/modulService.tsx';
 import { ModulActivity } from '../../services/modul/modulService.tsx'
 
-// Helper function untuk memformat tanggal
 const formatDate = (dateString: string) => {
-    if (!dateString || dateString.startsWith('0001-01-01')) {
-    }
     return new Date(dateString).toLocaleDateString('id-ID', {
         day: 'numeric',
         month: 'long',
@@ -17,7 +12,6 @@ const formatDate = (dateString: string) => {
     });
 };
 
-// Objek untuk styling dan ikon berdasarkan state
 const stateConfig: { [key: string]: { color: string; icon: JSX.Element } } = {
     DRAFT: {
         color: 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300',
@@ -46,7 +40,6 @@ export default function ActivityTimeline() {
         const loadActivities = async () => {
             try {
                 setIsLoading(true);
-                // Ambil data dan urutkan dari yang terbaru
                 const data = await getActivity();
                 const sortedData = data.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
                 setActivities(sortedData);

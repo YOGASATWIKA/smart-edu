@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Dropdown } from "../ui/dropdown/Dropdown";
+import { Dropdown } from "../modal/dropdown/Dropdown";
 import { useNavigate } from 'react-router';
 import { getProfile, User } from '../../services/auth/authService';
 

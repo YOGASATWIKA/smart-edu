@@ -1,4 +1,3 @@
-// src/components/common/StatusBadge.tsx
 import React from "react";
 import { CheckCircleIcon, XCircleIcon } from "lucide-react";
 

@@ -51,7 +51,6 @@ const ModelCard: React.FC<ModelCardProps> = ({ modelData, onViewPrompt }) => {
                 </button>
             </div>
 
-            {/* Footer Info */}
             <div className="border-t border-gray-200 dark:border-gray-700 mt-5 pt-4 text-xs text-gray-500 dark:text-gray-400 space-y-1">
                 <p>
                     Dibuat:&nbsp;

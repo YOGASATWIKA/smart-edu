@@ -1,5 +1,3 @@
-// src/components/AddMateriModal.tsx
-
 import { useState, FormEvent } from 'react';
 import { NewBaseMateriRequest, createBaseMateri } from '../../../services/modul/modulService.tsx';
 import Swal from "sweetalert2";
@@ -7,7 +5,7 @@ import Swal from "sweetalert2";
 interface AddMateriModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSuccess: () => void;
+    onSuccess: (newModul: any) => void;
 }
 
 export default function AddMateriModal({ isOpen, onClose, onSuccess }: AddMateriModalProps) {
@@ -47,7 +45,6 @@ export default function AddMateriModal({ isOpen, onClose, onSuccess }: AddMateri
         };
         Swal.fire({
             title: 'Memproses Permintaan Anda',
-            // html: 'AI sedang membuat outline, mohon tunggu...',
             allowOutsideClick: false,
             didOpen: () => {
                 Swal.showLoading();
@@ -55,13 +52,17 @@ export default function AddMateriModal({ isOpen, onClose, onSuccess }: AddMateri
         });
 
         try {
-            await createBaseMateri(payload);
+            const newModul = await createBaseMateri(payload);
             Swal.fire({
                 icon: 'success',
                 title: 'Berhasil!',
                 text: 'Modul Berhasil DiTambahkan!',
             });
-            onSuccess();
+
+            setNamaJabatan("")
+            setTugasJabatan([''])
+            setKeterampilan([''])
+            onSuccess(newModul);
             onClose();
         } catch (err: any) {
             const errorMessage= 'Gagal menambahkan modul.' ;

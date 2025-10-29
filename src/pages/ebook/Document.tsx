@@ -30,7 +30,7 @@ export default function ModulListPage() {
 
 
     if (isLoading) {
-        return <div className="flex h-screen items-center justify-center"><p>Memuat data awal...</p></div>;
+        return <div className="flex h-screen items-center justify-center"><p>Memuat data</p></div>;
     }
 
     if (error) {

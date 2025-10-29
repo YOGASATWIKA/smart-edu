@@ -45,6 +45,11 @@ const CreateModelForm: React.FC = () => {
             return;
         }
 
+        if (!description.trim()) {
+            Swal.fire("Peringatan", "Deskripsi wajib diisi!", "warning");
+            return;
+        }
+
         const payload = {
             model,
             description,
@@ -57,8 +62,6 @@ const CreateModelForm: React.FC = () => {
             setIsLoading(true);
             const res = await createModel(payload);
             Swal.fire("Berhasil", res.message || "Model berhasil dibuat!", "success");
-
-            // Reset form
             setModel("");
             setDescription("");
             setSteps([{ role: "system", content: "" }]);
@@ -84,7 +87,6 @@ const CreateModelForm: React.FC = () => {
                 Tambah Model Baru
             </h2>
 
-            {/* Nama Model */}
             <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Nama Model <span className="text-red-500">*</span>
@@ -95,14 +97,12 @@ const CreateModelForm: React.FC = () => {
                     onChange={(e) => setModel(e.target.value)}
                     placeholder="Contoh: Default"
                     className="w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700 dark:text-gray-100 focus:ring-2 focus:ring-teal-500 outline-none"
-                    required
                 />
             </div>
 
-            {/* Deskripsi */}
             <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Deskripsi
+                    Deskripsi<span className="text-red-500">*</span>
                 </label>
                 <textarea
                     value={description}
@@ -113,8 +113,10 @@ const CreateModelForm: React.FC = () => {
                 />
             </div>
 
-            {/* Steps */}
             <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Promt<span className="text-red-500">*</span>
+                </label>
                 {steps.map((step, index) => (
                     <div
                         key={index}
@@ -164,7 +166,6 @@ const CreateModelForm: React.FC = () => {
                 </button>
             </div>
 
-            {/* Status Aktif */}
             <div className="flex items-center gap-2">
                 <input
                     id="isActive"
@@ -181,7 +182,6 @@ const CreateModelForm: React.FC = () => {
                 </label>
             </div>
 
-            {/* Submit Button */}
             <button
                 type="submit"
                 disabled={isLoading}

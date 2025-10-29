@@ -46,7 +46,6 @@ const EditModelForm: React.FC<EditModelFormProps> = ({ modelData, onSuccess, onC
         <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 p-4 rounded-lg space-y-4 text-gray-900 dark:text-gray-100">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Edit Model</h2>
 
-            {/* Nama Model */}
             <div>
                 <label className="block text-sm font-medium mb-1">Nama Model</label>
                 <input
@@ -54,7 +53,6 @@ const EditModelForm: React.FC<EditModelFormProps> = ({ modelData, onSuccess, onC
                     value={model}
                     onChange={(e) => setModel(e.target.value)}
                     className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-800  dark:border-gray-700 "
-                    required
                 />
             </div>
 
@@ -65,12 +63,9 @@ const EditModelForm: React.FC<EditModelFormProps> = ({ modelData, onSuccess, onC
                     onChange={(e) => setDescription(e.target.value)}
                     className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-800 dark:border-gray-700"
                     rows={1}
-                    required
                 />
             </div>
 
-
-            {/* Steps */}
             <div>
                 {steps.map((step, i) => (
                     <div key={i} className="border rounded-lg p-3 mb-2 dark:border-gray-700">
@@ -94,7 +89,6 @@ const EditModelForm: React.FC<EditModelFormProps> = ({ modelData, onSuccess, onC
                             onChange={(e) => handleChangeStep(i, "content", e.target.value)}
                             className="w-full border rounded px-3 py-2 bg-white dark:bg-gray-800  dark:border-gray-700"
                             rows={10}
-                            required
                         />
                     </div>
                 ))}
@@ -112,7 +106,6 @@ const EditModelForm: React.FC<EditModelFormProps> = ({ modelData, onSuccess, onC
                 <label htmlFor="isActive" className="text-sm">Aktif</label>
             </div>
 
-            {/* Tombol Aksi */}
             <div className="flex justify-end gap-2">
                 <button type="button" onClick={onCancel} className="px-4 py-2 text-sm bg-gray-600 hover:bg-gray-400 rounded-lg">Batal</button>
                 <button

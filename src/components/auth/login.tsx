@@ -1,5 +1,3 @@
-// src/components/auth/login.tsx
-
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
@@ -46,7 +44,6 @@ export default function SignInForm() {
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="Enter your email"
                             className="block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
-                            required
                         />
                     </div>
                     <div className="mb-6">
@@ -93,7 +90,6 @@ export default function SignInForm() {
                     )}
                 </button>
 
-                {/* Kode ini yang diperbaiki */}
                 {googleError && (
                     <div className="mt-4 rounded-lg bg-red-50 p-3 text-center text-sm text-red-700">
                         {googleError}
