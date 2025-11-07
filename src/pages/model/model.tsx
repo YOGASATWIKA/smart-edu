@@ -24,11 +24,10 @@ useEffect(() => {
             setError(null);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Terjadi kesalahan');
-        } finally {
+        }finally {
             setIsLoading(false);
         }
     };
-
     fetchModels();
 }, []);
 
@@ -53,7 +52,7 @@ return (
             <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Daftar Model</h1>
             <button
                 onClick={() => setIsOpen(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold rounded-lg shadow transition-all"
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow transition-all"
             >
                 <PlusCircleIcon size={18} />
                 Buat Model

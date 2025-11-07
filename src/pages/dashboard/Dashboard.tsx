@@ -4,6 +4,7 @@ import {Link} from "react-router";
 import {useEffect, useState} from "react";
 import RecentActivityList from '../../components/modal/recentActivityList.tsx';
 import {getProfile, User} from "../../services/auth/authService.tsx";
+import {PencilIcon} from "../../icons";
 
 
 export default function SmartEdu() {
@@ -45,11 +46,14 @@ export default function SmartEdu() {
           <p className="mb-10 text-base text-gray-600 dark:text-gray-400 sm:text-lg">
             Siap untuk mengubah ide brilian Anda menjadi tulisan yang terstruktur? Mulailah dari sini.
           </p>
-            <Link to= "/write"
-                  className="mt-6 w-3 rounded-lg bg-blue-600 px-5 py-3 text-sm font-medium text-white transition group-hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-500 dark:group-hover:bg-blue-600"
+            <Link
+                to="/write"
+                className="mt-6 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600"
             >
-                Buat Modul
+                <PencilIcon className="w-6 h-6" />
+                <span>Buat Modul</span>
             </Link>
+
         </div>
       </div>
         <h2 className="mt-8 text-lg font-semibold text-gray-900 dark:text-white sm:text-xl">

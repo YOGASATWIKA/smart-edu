@@ -45,7 +45,7 @@ const ModelCard: React.FC<ModelCardProps> = ({ modelData, onViewPrompt }) => {
                     onClick={() => onViewPrompt(modelData)}
                     className="w-full rounded-lg px-4 py-2.5 text-sm font-semibold text-white shadow-sm
                         transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2
-                        bg-teal-600 hover:bg-teal-700 focus:ring-teal-500 dark:bg-teal-700 dark:hover:bg-teal-800"
+                        bg-blue-600 hover:bg-blue-700  focus:ring-teal-500 "
                 >
                     Lihat Prompt
                 </button>

@@ -32,10 +32,7 @@ export default function ModulCard({ modul }: ModulCardProps) {
         navigate('/ebook', { state: { moduleId: modul._id } });
     };
 
-    const stateColors: { [key: string]: string } = {
-        OUTLINE: 'bg-teal-100 text-teal-800 dark:bg-teal-900/60 dark:text-teal-300',
-        EBOOK:   'bg-green-100 text-green-800 dark:bg-green-900/60 dark:text-green-300',
-    };
+
     const actionButtonConfig = {
         OUTLINE: {
             text: 'Generate Ebook',
@@ -45,7 +42,7 @@ export default function ModulCard({ modul }: ModulCardProps) {
         EBOOK: {
             text: 'Lihat Ebook',
             handler: handleEbookNavigation,
-            className: "bg-gray-800 text-white hover:bg-gray-700 focus:ring-gray-500 dark:bg-green-700 dark:hover:bg-green-800 dark:focus:ring-green-600"
+            className: "bg-teal-600 text-white hover:bg-teal-700 focus:ring-teal-500 dark:bg-teal-600 dark:hover:bg-teal-700 dark:focus:ring-teal-500"
         }
     };
     const actionButton = actionButtonConfig[modul.state as keyof typeof actionButtonConfig];
@@ -98,9 +95,7 @@ export default function ModulCard({ modul }: ModulCardProps) {
                 </div>
 
                 <span
-                    className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${
-                        stateColors[modul.state] || stateColors.default
-                    }`}
+                    className={`inline-block rounded-full px-3 py-1 text-xs font-semibold bg-teal-600 hover:bg-teal-700 text-white `}
                 >
                   {modul.state}
                 </span>

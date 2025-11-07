@@ -144,6 +144,33 @@ export const updateModulOutline = async (modulId: string, updatedOutline: Outlin
     return await response.json();
 };
 
+
+
+export const updateModul = async (modulId: string, materiPokok: MateriPokok): Promise<any> => {
+    const endpoint = `${API_BASE_URL}/modul/base-materi/${modulId}`;
+
+    const requestBody = {
+        materipokok: materiPokok
+    };
+    const response = await fetch(endpoint, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody)
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({
+            message: `Gagal memperbarui Materi Pokok. Status: ${response.status}`
+        }));
+        throw new Error(errorData.message || 'Terjadi kesalahan yang tidak diketahui.');
+    }
+    return await response.json();
+};
+
+
+
 export const deleteModulById = async (modulId: string): Promise<any> => {
     const endpoint = `${API_BASE_URL}/modul/${modulId}`;
 

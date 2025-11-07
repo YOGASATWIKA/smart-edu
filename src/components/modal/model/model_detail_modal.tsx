@@ -62,17 +62,17 @@ const ModelDetailModal = ({model, onClose}: ModelDetailModalProps) => {
 
                         <div className="mt-6 flex justify-end gap-2">
                             <button
-                                onClick={() => setIsEditing(true)}
-                                className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg"
-                            >
-                                Edit
-                            </button>
-                            <button
                                 ref={closeButtonRef}
                                 onClick={onClose}
-                                className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg"
+                                className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg"
                             >
                                 Tutup
+                            </button>
+                            <button
+                                onClick={() => setIsEditing(true)}
+                                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+                            >
+                                Edit
                             </button>
                         </div>
                     </>

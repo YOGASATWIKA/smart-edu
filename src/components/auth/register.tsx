@@ -69,7 +69,7 @@ export default function SignUpForm() {
                             onChange={(e) => setPassword(e.target.value)}
                         />
                      </div>
-                    <button type="submit" disabled={isLoading} className="w-full rounded-lg bg-sky-600 px-7 py-3 text-sm font-semibold text-white transition-colors hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60">
+                    <button type="submit" disabled={isLoading} className="w-full rounded-lg bg-blue-600 px-7 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60">
                         {isLoading ? 'Registering...' : 'Register'}
                     </button>
                 </form>
@@ -101,7 +101,7 @@ export default function SignUpForm() {
                     )}
                 </button>
                 <div className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">
-                    <p>Already have an account?{' '} <Link to="/signin" className="font-semibold text-sky-600 hover:underline">Sign In</Link></p>
+                    <p>Already have an account?{' '} <Link to="/signin" className="font-semibold text-blue-600 hover:underline">Sign In</Link></p>
                 </div>
             </div>
         </div>

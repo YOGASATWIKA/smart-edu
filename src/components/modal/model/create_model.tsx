@@ -198,7 +198,7 @@ const CreateModelForm: React.FC = () => {
                 className={`w-full py-2.5 text-white rounded-lg font-semibold transition ${
                     isLoading
                         ? "bg-teal-400 cursor-not-allowed"
-                        : "bg-teal-600 hover:bg-teal-700"
+                        : "bg-blue-600 hover:bg-blue-700 "
                 }`}
             >
                 {isLoading ? "Menyimpan..." : "Simpan Model"}

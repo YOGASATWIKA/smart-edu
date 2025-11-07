@@ -11,13 +11,12 @@ export default function ModulListPage() {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
-    const [filterStatus, setFilterStatus] = useState('ALL');
     useEffect(() => {
         const fetchData = async () => {
             setIsLoading(true);
             setError(null);
             try {
-                const data = await getModulByState(filterStatus);
+                const data = await getModulByState("EBOOK");
                 setModulList(data);
             } catch (err: any) {
                 setError(err.message);
@@ -26,7 +25,7 @@ export default function ModulListPage() {
             }
         };
         fetchData();
-    }, [filterStatus]);
+    }, ["EBOOK"]);
 
 
     if (isLoading) {
@@ -46,20 +45,6 @@ export default function ModulListPage() {
         <PageBreadcrumb pageTitle="Ebook" />
 
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-            <div className="flex flex-col items-center justify-end rounded-lg shadow-sm sm:flex-row pb-4 ">
-                    <div className="relative ">
-                        <select
-                            id="status-filter"
-                            value={filterStatus}
-                            onChange={(e) => setFilterStatus(e.target.value)}
-                            className="min-w-36 rounded-md border-gray-300 bg-white py-2 pr-8 text-sm shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                        >
-                            <option value="ALL">All</option>
-                            <option value="OUTLINE">Outline</option>
-                            <option value="EBOOK">Ebook</option>
-                        </select>
-                </div>
-            </div>
             <main>
                 {modulList.length > 0 ? (
                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

@@ -55,7 +55,7 @@ export default function SignInForm() {
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full rounded-lg bg-sky-600 px-7 py-3 text-sm font-semibold text-white transition-colors hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="w-full rounded-lg bg-blue-600 px-7 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                         {isSubmitting ? 'Logging in...' : 'Login'}
                     </button>
@@ -97,7 +97,7 @@ export default function SignInForm() {
                 )}
 
                 <div className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">
-                    <p>Don&apos;t have an account? <Link to="/signup" className="font-semibold text-sky-600 hover:underline">Sign Up</Link></p>
+                    <p>Don&apos;t have an account? <Link to="/signup" className="font-semibold text-blue-600 hover:underline">Sign Up</Link></p>
                 </div>
             </div>
         </div>

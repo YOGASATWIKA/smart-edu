@@ -5,10 +5,20 @@ import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import AddMateriModal from '../../components/modal/modul/modul.tsx';
 import EditableOutlineDisplay from '../../components/modal/modul/updateModulOutline.tsx';
-import { getModulByState, Modul, generateOutlines, updateModulOutline, Outline } from '../../services/modul/modulService';
+import EditableModul from '../../components/modal/modul/updateModul.tsx';
+import {
+    getModulByState,
+    Modul,
+    generateOutlines,
+    updateModulOutline,
+    updateModul,
+    Outline,
+    MateriPokok
+} from '../../services/modul/modulService';
 import { generateEbooks } from '../../services/ebook/ebookService';
 import { getModelByStatus, Model } from '../../services/model/modelService';
 import {LoadingSpinner} from "../../components/modal/ebook/loadingSpinner.tsx";
+import {PencilIcon} from "../../icons";
 
 export default function Write() {
     const [modulList, setModulList] = useState<Modul[]>([]);
@@ -124,7 +134,18 @@ export default function Write() {
     }, [navigate, selectedModulId, selectedModel]);
 
 
-    const handleSaveChanges = useCallback(async (modulId: string, updatedOutline: Outline) => {
+    const handleSaveModul = useCallback(async (modulId: string, updatedMateriPokok: MateriPokok) => {
+        Swal.fire({ title: 'Menyimpan Perubahan...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        try {
+            await updateModul(modulId, updatedMateriPokok);
+            Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Perubahan telah disimpan.' });
+        } catch (err: any) {
+            const errorMessage = 'Gagal menyimpan outline.';
+            Swal.fire({ icon: 'error', title: 'Oops... Terjadi Kesalahan', text: errorMessage });
+        }
+    }, []);
+
+    const handleSaveOutline = useCallback(async (modulId: string, updatedOutline: Outline) => {
         Swal.fire({ title: 'Menyimpan Perubahan...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
         try {
             await updateModulOutline(modulId, updatedOutline);
@@ -149,17 +170,21 @@ export default function Write() {
                 <EditableOutlineDisplay
                     key={selectedModulId}
                     modulId={selectedModulId}
-                    onSave={handleSaveChanges}
+                    onSave={handleSaveOutline}
                 />
             );
         }
         return (
-            <div className="flex items-center justify-center min-h-[70vh] w-full rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700">
-                <p className="text-gray-500">Pilih modul dan klik "Generate Outline" untuk memulai, atau hasil akan muncul di sini jika sudah ada.</p>
-            </div>
+            <EditableModul
+                key={selectedModulId}
+                modulId={selectedModulId}
+                onSave={handleSaveModul}
+            />
+            // <div className="flex items-center justify-center min-h-[70vh] w-full rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700">
+            //     <p className="text-gray-500">Pilih modul dan klik "Generate Outline" untuk memulai, atau hasil akan muncul di sini jika sudah ada.</p>
+            // </div>
         );
     };
-
     return (
         <>
             <PageMeta title="Write - SmartEdu" description="Buat dan edit kerangka tulisan (outline) untuk modul." />
@@ -226,18 +251,20 @@ export default function Write() {
                                         type="button"
                                         onClick={handleGenerateEbook}
                                         disabled={isInitialLoading || isGeneratingOutline || isGeneratingEbook || !selectedModulId}
-                                        className="w-full rounded-lg bg-teal-600 hover:bg-teal-700 px-5 py-3 text-base font-semibold text-white shadow-md transition focus:outline-none focus:ring-4 disabled:cursor-not-allowed"
+                                        className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-teal-600 hover:bg-teal-700 px-5 py-3 text-base font-semibold text-white shadow-md transition focus:outline-none focus:ring-4 focus:ring-teal-300 disabled:cursor-not-allowed disabled:bg-teal-400 dark:focus:ring-teal-800"
                                     >
-                                        {isGeneratingEbook ? 'Memulai Proses...' : 'Generate Ebook'}
+                                        <PencilIcon className="w-6 h-6" />
+                                        <span>{isGeneratingEbook ? 'Memulai Proses...' : 'Generate Ebook'}</span>
                                     </button>
                                 ) : (
                                     <button
                                         type="button"
                                         onClick={handleGenerateOutline}
                                         disabled={isInitialLoading || isGeneratingOutline || !selectedModulId}
-                                        className="w-full rounded-lg bg-sky-600 px-5 py-3 text-base font-semibold text-white shadow-md transition hover:bg-sky-700 focus:outline-none focus:ring-4 focus:ring-sky-300 disabled:bg-sky-400 disabled:cursor-not-allowed dark:focus:ring-sky-800"
+                                        className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-sky-600 px-5 py-3 text-base font-semibold text-white shadow-md transition hover:bg-sky-700 focus:outline-none focus:ring-4 focus:ring-sky-300 disabled:bg-sky-400 disabled:cursor-not-allowed dark:focus:ring-sky-800"
                                     >
-                                        {isGeneratingOutline ? 'Sedang Membuat...' : 'Generate Outline'}
+                                        <PencilIcon className="w-6 h-6" />
+                                        <span>{isGeneratingOutline ? 'Sedang Membuat...' : 'Generate Outline'}</span>
                                     </button>
                                 )}
                             </form>

@@ -107,11 +107,11 @@ const EditModelForm: React.FC<EditModelFormProps> = ({ modelData, onSuccess, onC
             </div>
 
             <div className="flex justify-end gap-2">
-                <button type="button" onClick={onCancel} className="px-4 py-2 text-sm bg-gray-600 hover:bg-gray-400 rounded-lg">Batal</button>
+                <button type="button" onClick={onCancel} className="px-4 py-2 text-sm bg-gray-600 hover:bg-gray-700 text-white rounded-lg">Batal</button>
                 <button
                     type="submit"
                     disabled={isLoading}
-                    className={`px-4 py-2 text-sm text-white rounded-lg ${isLoading ? "bg-teal-400" : "bg-teal-600 hover:bg-teal-700"}`}
+                    className={`px-4 py-2 text-sm text-white rounded-lg ${isLoading ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"}`}
                 >
                     {isLoading ? "Menyimpan..." : "Simpan Perubahan"}
                 </button>
