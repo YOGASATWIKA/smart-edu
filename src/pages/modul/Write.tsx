@@ -120,18 +120,21 @@ export default function Write() {
 
     const handleGenerateEbook = useCallback(async () => {
         if (!selectedModulId) return;
+
         setIsGeneratingEbook(true);
-        try {
-            navigate('/ebook', { state: { moduleId: selectedModulId, isGenerating: true } });
-            await generateEbooks([selectedModulId], selectedModel);
-        } catch (err: any) {
-            setIsGeneratingEbook(false);
-            const errorMessage = 'Gagal memulai pembuatan Ebook.';
-            Swal.fire({ icon: 'error', title: 'Kesalahan', text: errorMessage });
-        }finally {
-            setIsGeneratingEbook(false);
-        }
+        navigate('/ebook', {
+            state: { moduleId: selectedModulId, isGenerating: true }
+        });
+        generateEbooks([selectedModulId], selectedModel)
+            .catch(() => {
+            })
+            .finally(() => {
+                setIsGeneratingEbook(false);
+            });
+
     }, [navigate, selectedModulId, selectedModel]);
+
+
 
 
     const handleSaveModul = useCallback(async (modulId: string, updatedMateriPokok: MateriPokok) => {
