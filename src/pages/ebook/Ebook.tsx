@@ -11,8 +11,7 @@ import { TiptapToolbar } from '../../components/modal/ebook/TipTapToolbar';
 import {FileText} from "lucide-react";
 
 
-const POLLING_INTERVAL = 10000;
-const MAX_POLLING_ATTEMPTS = 180;
+
 
 
 export default function EbookViewerPage() {
@@ -26,6 +25,9 @@ export default function EbookViewerPage() {
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [, setIsInitializing] = useState(true);
+    const POLLING_INTERVAL = 10000;
+    const MAX_POLLING_ATTEMPTS = 180;
+    const [timeLeft, setTimeLeft] = useState(MAX_POLLING_ATTEMPTS * POLLING_INTERVAL / 1000);
 
     const editor = useEditor({
         extensions: [
@@ -77,11 +79,11 @@ export default function EbookViewerPage() {
         }
 
         let intervalId: NodeJS.Timeout | null = null;
+        let timerId: NodeJS.Timeout | null = null; // ✅ timer per detik
         let isMounted = true;
 
         const poll = async () => {
             if (!isMounted) return false;
-
             const success = await fetchEbook();
             return success;
         };
@@ -91,14 +93,23 @@ export default function EbookViewerPage() {
 
             let attempts = 0;
 
-            const initial = await poll();
+            setTimeLeft(MAX_POLLING_ATTEMPTS * POLLING_INTERVAL / 1000);
 
+            const initial = await poll();
             if (initial) {
                 if (isMounted) setIsLoading(false);
                 return;
             }
 
             if (isGenerating && isMounted) {
+
+                timerId = setInterval(() => {
+                    setTimeLeft(prev => {
+                        if (prev <= 1) return 0;
+                        return prev - 1;
+                    });
+                }, 1000);
+
                 intervalId = setInterval(async () => {
                     if (!isMounted) return;
 
@@ -108,20 +119,23 @@ export default function EbookViewerPage() {
 
                     if (success) {
                         clearInterval(intervalId!);
+                        clearInterval(timerId!);
                         if (isMounted) setIsLoading(false);
                         return;
                     }
 
                     if (attempts >= MAX_POLLING_ATTEMPTS) {
                         clearInterval(intervalId!);
+                        clearInterval(timerId!);
                         if (isMounted) setIsLoading(false);
 
                         Swal.fire({
                             icon: 'error',
-                            title: 'Timeout',
+                            title: 'Gagal Membuat Outline',
                             text: 'Proses generate melebihi 30 menit dan dihentikan.',
                         });
                     }
+
                 }, POLLING_INTERVAL);
             } else {
                 if (isMounted) setIsLoading(false);
@@ -133,8 +147,10 @@ export default function EbookViewerPage() {
         return () => {
             isMounted = false;
             if (intervalId) clearInterval(intervalId);
+            if (timerId) clearInterval(timerId);
         };
     }, [id, isGenerating, fetchEbook]);
+
 
 
 
@@ -201,10 +217,12 @@ export default function EbookViewerPage() {
 
     if (isLoading) {
         return (
-                <LoadingSpinner isGenerating={isGenerating} />
+            <LoadingSpinner
+                isGenerating={isGenerating}
+                timeLeft={timeLeft}
+            />
         );
     }
-
     if (error) {
         return (
             <div className="min-h-screen flex items-center justify-center p-8 bg-gray-50">
