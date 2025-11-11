@@ -12,7 +12,8 @@ import {FileText} from "lucide-react";
 
 
 const POLLING_INTERVAL = 10000;
-const MAX_POLLING_ATTEMPTS = 144;
+const MAX_POLLING_ATTEMPTS = 180;
+
 
 export default function EbookViewerPage() {
     const location = useLocation();
@@ -65,7 +66,6 @@ export default function EbookViewerPage() {
     }, [id]);
 
     useEffect(() => {
-
         if (!id) {
             setIsLoading(false);
             Swal.fire({
@@ -83,20 +83,17 @@ export default function EbookViewerPage() {
             if (!isMounted) return false;
 
             const success = await fetchEbook();
-            if (!success && isMounted) {
-                setIsLoading(true);
-            }
-
             return success;
         };
 
         const startPolling = async () => {
-            let attempts = 0;
             setIsLoading(true);
 
-            const initialSuccess = await poll();
+            let attempts = 0;
 
-            if (initialSuccess) {
+            const initial = await poll();
+
+            if (initial) {
                 if (isMounted) setIsLoading(false);
                 return;
             }
@@ -110,18 +107,20 @@ export default function EbookViewerPage() {
                     const success = await poll();
 
                     if (success) {
-                        if (intervalId) clearInterval(intervalId);
+                        clearInterval(intervalId!);
                         if (isMounted) setIsLoading(false);
-                    } else if (attempts >= MAX_POLLING_ATTEMPTS) {
-                        if (intervalId) clearInterval(intervalId);
+                        return;
+                    }
+
+                    if (attempts >= MAX_POLLING_ATTEMPTS) {
+                        clearInterval(intervalId!);
                         if (isMounted) setIsLoading(false);
+
                         Swal.fire({
                             icon: 'error',
                             title: 'Timeout',
-                            text: 'Proses generate terlalu lama.',
+                            text: 'Proses generate melebihi 30 menit dan dihentikan.',
                         });
-                    } else {
-                        if (isMounted) setIsLoading(true);
                     }
                 }, POLLING_INTERVAL);
             } else {
@@ -136,6 +135,7 @@ export default function EbookViewerPage() {
             if (intervalId) clearInterval(intervalId);
         };
     }, [id, isGenerating, fetchEbook]);
+
 
 
     useEffect(() => {
