@@ -11,6 +11,7 @@ import Model from "./pages/model/model"
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import ProtectedRoute from "./components/common/ProtectedRoute";
+import UpdateProfilePage from "./pages/authPages/UpdateProfile.tsx";
 
 export default function App() {
   const googleClientId = "607532609795-lv0s840lkh5agfbplralb9t88bbkrtud.apps.googleusercontent.com";
@@ -25,6 +26,7 @@ export default function App() {
           <Route element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
               <Route index path="/" element={<Home />} />
+              <Route index path="/profile" element={<UpdateProfilePage />} />
                 <Route path="/model" element={<Model />} />
                 <Route path="/write" element={<Modul />} />
                 <Route path="/document" element={<Document />} />

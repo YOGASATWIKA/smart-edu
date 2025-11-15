@@ -13,6 +13,12 @@ export interface User {
     password?: string;
 }
 
+export interface UpdateProfileRequest {
+    email: string;
+    picture: string;
+    name: string;
+}
+
 
 export const loginService = async (credentials: LoginCredentials): Promise<AuthResponse> => {
     try {
@@ -91,3 +97,39 @@ export const storeAuthData = (token: string, user: object) => {
     localStorage.setItem('authToken', token);
     localStorage.setItem('user', JSON.stringify(user));
 };
+
+export const updateProfile = async (token: string, payload: UpdateProfileRequest,   userId: string) => {
+    const response = await axios.put(
+        `${BASE_API_URL}/api/profile/`,
+        payload,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                id: userId,
+                "Content-Type": "application/json"
+            }
+        }
+    );
+
+    return response.data;
+};
+
+export const uploadImageProfile = async (token: string, file: File) => {
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const response = await axios.post(
+        `${BASE_API_URL}/api/profile/upload`,
+        formData,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "multipart/form-data"
+            }
+        }
+    );
+
+
+    return response.data;
+};
+
