@@ -69,7 +69,7 @@ export default function ActivityTimeline() {
                             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{activity.nama_jabatan}</h3>
                                 <time className="block sm:hidden mb-2 text-sm font-normal leading-none text-gray-400 dark:text-gray-500">{formatDate(activity.updated_at)}</time>
-                                <span className={`rounded-full px-3 py-1 text-xs font-semibold ${config.color}`}>{activity.state}</span>
+                                <span className={`rounded-full w-1/4 sm:w-auto  px-3 py-1 text-xs font-semibold ${config.color}`}>{activity.state}</span>
                             </div>
                             <time className="hidden sm:block mt-1 text-sm font-normal leading-none text-gray-400 dark:text-gray-500">{formatDate(activity.updated_at)}</time>
                         </li>
