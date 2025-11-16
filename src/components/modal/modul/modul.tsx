@@ -81,10 +81,12 @@ export default function AddMateriModal({ isOpen, onClose, onSuccess }: AddMateri
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm">
-            <div className="w-full max-w-2xl rounded-lg bg-white p-8 shadow-2xl dark:bg-gray-800">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Tambah Base Materi Baru</h2>
-
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-60 backdrop-blur-sm">
+            <div className="flex min-h-full items-center justify-center p-4">
+                <div className="w-full max-w-2xl rounded-lg bg-white p-8 shadow-2xl dark:bg-gray-800">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+                        Tambah Base Materi Baru
+                    </h2>
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
                         <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Nama Jabatan</label>
@@ -124,6 +126,7 @@ export default function AddMateriModal({ isOpen, onClose, onSuccess }: AddMateri
                         </button>
                     </div>
                 </form>
+                    </div>
             </div>
         </div>
     );

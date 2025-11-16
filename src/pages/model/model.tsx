@@ -60,20 +60,25 @@ return (
         </div>
 
         {isOpen && (
-            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-2xl mx-4 p-6 relative">
-                    <button
-                        onClick={() => setIsOpen(false)}
-                        className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-                    >
-                        ✕
-                    </button>
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
-                        Buat Model Baru
-                    </h2>
-                    <CreateModelForm />
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm overflow-y-auto z-50">
+                <div className="min-h-full flex items-center justify-center p-4">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-2xl p-6 relative">
+                        <button
+                            onClick={() => setIsOpen(false)}
+                            className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                        >
+                            ✕
+                        </button>
+
+                        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                            Buat Model Baru
+                        </h2>
+
+                        <CreateModelForm />
+                    </div>
                 </div>
             </div>
+
         )}
 
         {isDetailOpen && selectedModel && (
