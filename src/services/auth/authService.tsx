@@ -133,56 +133,58 @@ export const uploadImageProfile = async (token: string, file: File) => {
     return response.data;
 };
 
-export async function resetPasswordRequest(
+export const resetPasswordRequest = async (
     token: string,
     newPassword: string,
     confirmPassword: string
-) {
+): Promise<{ ok: boolean; message: string }> => {
     try {
-        const res = await fetch(`${BASE_API_URL}/reset-password`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                token,
-                new_password: newPassword,
-                confirm_password: confirmPassword,
-            }),
+        const response = await axios.post(`${BASE_API_URL}/reset-password`, {
+            token,
+            new_password: newPassword,
+            confirm_password: confirmPassword,
         });
 
-        const data = await res.json();
-
         return {
-            ok: res.ok,
-            message: data.message || (res.ok ? "Password berhasil direset" : "Gagal reset password"),
+            ok: true,
+            message: response.data?.message || "Password berhasil direset",
         };
     } catch (error: any) {
-        console.error("Authentication service error:", error.response?.data || error.message);
-        throw new Error('Failed to authenticate with the server.');
-    }
-}
-
-export async function forgotPasswordRequest(email: string) {
-    try {
-        const res = await fetch(`${BASE_API_URL}/forgot-password`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ email }),
-        });
-
-        const data = await res.json();
+        console.error(
+            "Reset password service error:",
+            error.response?.data || error.message
+        );
 
         return {
-            ok: res.ok,
+            ok: false,
+            message: error.response?.data?.message || "Gagal reset password",
+        };
+    }
+};
+
+export const forgotPasswordRequest = async (
+    email: string
+): Promise<{ ok: boolean; message: string }> => {
+    try {
+        const response = await axios.post(`${BASE_API_URL}/forgot-password`, {
+            email,
+        });
+
+        return {
+            ok: true,
             message:
-                data.message ||
-                (res.ok
-                    ? "Jika email terdaftar, link reset password telah dikirim."
-                    : "Terjadi kesalahan"),
+                response.data?.message ||
+                "Jika email terdaftar, link reset password telah dikirim.",
         };
     } catch (error: any) {
-        console.error("Authentication service error:", error.response?.data || error.message);
-        throw new Error('Failed to authenticate with the server.');
+        console.error(
+            "Forgot password service error:",
+            error.response?.data || error.message
+        );
+
+        return {
+            ok: false,
+            message: error.response?.data?.message || "Terjadi kesalahan",
+        };
     }
-}
+};
