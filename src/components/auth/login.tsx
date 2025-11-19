@@ -38,20 +38,37 @@ export default function SignInForm() {
                 </div>
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
-                        <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300" htmlFor="email">Email</label>
+                        <label
+                            className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300"
+                            htmlFor="email"
+                        >
+                            Email
+                        </label>
                         <input
-                            id="email" type="email" value={email}
+                            id="email"
+                            type="email"
+                            value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="Enter your email"
                             className="block w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
                         />
                     </div>
+
                     <div className="mb-6">
                         <PasswordInput
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                         />
                     </div>
+                    <div className="mb-4 text-right">
+                        <a
+                            href="/forgot-password"
+                            className="text-sm font-medium text-blue-600 hover:underline hover:text-blue-700"
+                        >
+                            Lupa password?
+                        </a>
+                    </div>
+
                     <button
                         type="submit"
                         disabled={isSubmitting}
@@ -60,6 +77,7 @@ export default function SignInForm() {
                         {isSubmitting ? 'Logging in...' : 'Login'}
                     </button>
                 </form>
+
                 {formError && (
                     <div className="mt-4 rounded-lg bg-red-50 p-3 text-center text-sm text-red-700">
                         {formError}

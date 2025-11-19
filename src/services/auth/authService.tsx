@@ -133,3 +133,56 @@ export const uploadImageProfile = async (token: string, file: File) => {
     return response.data;
 };
 
+export async function resetPasswordRequest(
+    token: string,
+    newPassword: string,
+    confirmPassword: string
+) {
+    try {
+        const res = await fetch(`${BASE_API_URL}/reset-password`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                token,
+                new_password: newPassword,
+                confirm_password: confirmPassword,
+            }),
+        });
+
+        const data = await res.json();
+
+        return {
+            ok: res.ok,
+            message: data.message || (res.ok ? "Password berhasil direset" : "Gagal reset password"),
+        };
+    } catch (error: any) {
+        console.error("Authentication service error:", error.response?.data || error.message);
+        throw new Error('Failed to authenticate with the server.');
+    }
+}
+
+export async function forgotPasswordRequest(email: string) {
+    try {
+        const res = await fetch(`${BASE_API_URL}/forgot-password`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email }),
+        });
+
+        const data = await res.json();
+
+        return {
+            ok: res.ok,
+            message:
+                data.message ||
+                (res.ok
+                    ? "Jika email terdaftar, link reset password telah dikirim."
+                    : "Terjadi kesalahan"),
+        };
+    } catch (error: any) {
+        console.error("Authentication service error:", error.response?.data || error.message);
+        throw new Error('Failed to authenticate with the server.');
+    }
+}
