@@ -74,7 +74,7 @@ export default function ResetPassword() {
                         </div>
 
                         {message && (
-                            <p className="text-center text-sm text-red-600 dark:text-red-400">
+                            <p className="text-center text-sm text-green-600 dark:text-green-400">
                                 {message}
                             </p>
                         )}
