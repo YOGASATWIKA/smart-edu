@@ -7,7 +7,7 @@ export default function UpdateProfilePage() {
     const [name, setName] = useState("");
     const [picture, setPicture] = useState("");
     const [email, setEmail] = useState("");
-
+    const [formError, setFormError] = useState<string | null>(null);
     const [uploading, setUploading] = useState(false);
     const [loadingData, setLoadingData] = useState(true);
 
@@ -18,13 +18,14 @@ export default function UpdateProfilePage() {
 
     useEffect(() => {
         const fetchProfile = async () => {
+            setFormError(null);
             try {
                 const res = await getProfile(token);
                 setName(res.name || "");
                 setEmail(res.email || "");
                 setPicture(res.picture || "");
-            } catch (err) {
-                console.error("Gagal mengambil profile:", err);
+            } catch (error: any) {
+                setFormError(error.message || "Gagal memuat data profil");
             } finally {
                 setLoadingData(false);
             }
@@ -34,12 +35,13 @@ export default function UpdateProfilePage() {
     }, [token]);
 
     const handleFileUpload = async (file: File) => {
+        setFormError(null);
         try {
             setUploading(true);
             const res = await uploadImageProfile(token, file);
             setPicture(res.url);
-        } catch (err) {
-            console.error("Upload gaagal:", err);
+        } catch (error: any) {
+            setFormError(error.message || "Gagal mengupload foto. Silakan coba lagi.");
         } finally {
             setUploading(false);
         }
@@ -47,18 +49,24 @@ export default function UpdateProfilePage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
+        setFormError(null);
         try {
             const res = await updateProfile(token, { email, picture, name }, userId);
-            navigate("/", { replace: true });
-            window.location.reload();
-            Swal.fire("Berhasil", res.message || "Profile berhasil diperbarui!", "success");
-        } catch (err) {
-            console.error("Update profile gagal", err);
+            Swal.fire({
+                title: "Berhasil",
+                text: res.message || "Profile berhasil diperbarui!",
+                icon: "success",
+                confirmButtonText: "OK"
+            }).then(() => {
+                navigate("/", { replace: true });
+                window.location.reload();
+            });
+        } catch (error: any) {
+            const errorMessage = error.response?.data?.message || error.message || "Gagal memperbarui profil.";
+            setFormError(errorMessage);
         }
     };
 
-    // 🔄 Loading sebelum data masuk
     if (loadingData) {
         return (
             <div className="flex justify-center items-center h-64 text-gray-600 dark:text-gray-300">
@@ -157,7 +165,13 @@ export default function UpdateProfilePage() {
                         >
                             Simpan Perubahan
                         </button>
+                        {formError && (
+                            <div className="mt-4 p-3 text-center text-sm text-red-700">
+                                {formError}
+                            </div>
+                        )}
                     </div>
+
                 </form>
             </div>
         </div>
