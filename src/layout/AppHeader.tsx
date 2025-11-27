@@ -42,21 +42,19 @@ const AppHeader: React.FC = () => {
     <header className="sticky top-0 flex w-full bg-white border-gray-200 z-9 dark:border-gray-800 dark:bg-gray-900 lg:border-b">
         <div className="flex w-full items-center justify-between px-4 py-3 lg:px-6 lg:py-4 border-b border-gray-200 dark:border-gray-800">
             {/* Left Section */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center ">
                 <button
-                    className="flex items-center justify-center h-10 w-10 rounded-lg border lg:border-none border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+                    className="flex items-center justify-center rounded-lg border lg:border-none border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
                     onClick={handleToggle}
                     aria-label="Toggle Sidebar"
                 >
                     {window.innerWidth >= 1024 ? (
-                        // DESKTOP ICON
                         isDesktopOpen ? (
                             <span className="text-xl font-bold">&lt;</span>
                         ) : (
                             <span className="text-xl font-bold">&gt;</span>
                         )
                     ) : (
-                        // MOBILE ICON (hamburger & close)
                         isMobileOpen ? (
                             <svg
                                 width="24"

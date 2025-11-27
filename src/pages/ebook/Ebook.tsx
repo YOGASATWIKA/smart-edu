@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import Swal from "sweetalert2";
-import { useEditor, EditorContent } from '@tiptap/react';
+import {useEditor, EditorContent} from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import TextAlign from '@tiptap/extension-text-align';
@@ -9,10 +9,6 @@ import {Ebook, getEbookByModuleId, updateEbookById, downloadEbookWord, downloadE
 import { LoadingSpinner } from '../../components/modal/ebook/loadingSpinner.tsx';
 import { TiptapToolbar } from '../../components/modal/ebook/TipTapToolbar';
 import {FileText} from "lucide-react";
-
-
-
-
 
 export default function EbookViewerPage() {
     const location = useLocation();
@@ -45,6 +41,7 @@ export default function EbookViewerPage() {
             setHasUnsavedChanges(true);
         },
     });
+
 
     const fetchEbook = useCallback(async () => {
         if (!id) {
@@ -79,7 +76,7 @@ export default function EbookViewerPage() {
         }
 
         let intervalId: NodeJS.Timeout | null = null;
-        let timerId: NodeJS.Timeout | null = null; // ✅ timer per detik
+        let timerId: NodeJS.Timeout | null = null;
         let isMounted = true;
 
         const poll = async () => {

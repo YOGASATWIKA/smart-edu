@@ -48,8 +48,7 @@ return (
         <PageMeta title="Model" description="Lihat semua model prompt yang tersedia." />
         <PageBreadcrumb pageTitle="Model" />
 
-        <div className="flex justify-between items-center mb-6">
-            <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Daftar Model</h1>
+        <div className="flex justify-end items-center mb-6">
             <button
                 onClick={() => setIsOpen(true)}
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow transition-all"
