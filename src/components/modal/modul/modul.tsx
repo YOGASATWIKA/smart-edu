@@ -58,6 +58,7 @@ export default function AddMateriModal({ isOpen, onClose, onSuccess }: AddMateri
                 title: 'Berhasil!',
                 text: 'Modul Berhasil DiTambahkan!',
             });
+            window.location.reload();
 
             setNamaJabatan("")
             setTugasJabatan([''])
